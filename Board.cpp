@@ -5,12 +5,12 @@
 class Board
 {
 	public:
-		int **binaryBoard = new int*[8];
+		//int **binaryBoard = new int*[8];
 		Piece **pieceBoard = new Piece*[8];
 
 		Board() {
 			for (int i = 0; i < 8; ++i) {
-				binaryBoard[i] = new int[8];
+				//binaryBoard[i] = new int[8];
 				pieceBoard[i] = new Piece[8];
 			}
 			setupBoard();
@@ -47,10 +47,10 @@ class Board
 				for (int j = 0; j < 8; ++j) {
 					//set colour
 					if (i <= 1){
-						pieceBoard[i][j].SetColour(2);
+						pieceBoard[i][j].SetColour(1);
 					}
 					else if (i >= 6) {
-						pieceBoard[i][j].SetColour(1);
+						pieceBoard[i][j].SetColour(2);
 					}
 					
 					//set type
@@ -78,8 +78,45 @@ class Board
 			}
 		}
 
-		void movePiece(int toMoveX, int toMoveY, int toTakeX, int toTakeY) {
-			pieceBoard[toTakeX + 1][toTakeY + 1] = pieceBoard[toMoveX + 1][toMoveY + 1];
-			//pieceBoard[toMoveX + 1][toMoveY + 1].Clear();
+
+		void movePiece(int toMoveNum, int toMoveLet, int toTakeNum, int toTakeLet) {
+			
+			Piece pieceToTake = pieceBoard[toTakeNum - 1][toTakeLet - 1];
+			Piece pieceToMove = pieceBoard[toMoveNum - 1][toMoveLet - 1];
+
+			if (validateMove(pieceToMove, pieceToTake, toMoveNum, toMoveLet, toTakeNum, toTakeLet) == 1)
+			{
+				pieceBoard[toTakeNum - 1][toTakeLet - 1] = pieceBoard[toMoveNum - 1][toMoveLet - 1];
+				pieceBoard[toMoveNum - 1][toMoveLet - 1].Clear();
+			}
+			
+		}
+
+		//return of 0 is an invalid move
+		int validateMove(Piece& pieceToMove, Piece& pieceToTake, int& toMoveNum, int& toMoveLet, int& toTakeNum, int& toTakeLet)
+		{
+			//for white pawns
+			if (pieceToMove.type == "pawn" && pieceToMove.colour == 1)
+			{
+				if (toMoveNum + 1 == toTakeNum)
+				{
+					if ((toMoveLet == toTakeLet + 1) || (toMoveLet == toTakeLet - 1)) {
+						return 1;
+					}
+				}
+			}
+
+			//for black pawns
+			if (pieceToMove.type == "pawn" && pieceToMove.colour == 2)
+			{
+				if (toMoveNum - 1 == toTakeNum)
+				{
+					if ((toMoveLet + 1 == toTakeLet) || (toMoveLet - 1 == toTakeLet)) {
+						return 1;
+					}
+				}
+			}
+			
+			return 0;
 		}
 };
