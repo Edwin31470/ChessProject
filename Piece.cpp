@@ -3,35 +3,61 @@
 
 using namespace std;
 
+enum Type {
+	empty,
+	pawn,
+	rook,
+	bishop,
+	knight,
+	king,
+	queen,
+	pawnEnPassant,
+	kingCastle,
+	rookCastle,
+	outOfBoard
+};
+
+enum Colour {
+	white,
+	black,
+	none
+};
+
 class Piece {
 
 	public:
-		string type = "none";
-		int colour = 0; //none = 0, white = 1, black = 2
+		Type type;
+		Colour colour;
 
-		Piece() {
+		Piece() { // if no information given, assume an empty board square
+			type = Type::empty;
+			colour = Colour::none;
+		}
 
+		Piece(Type t, Colour c) {
+			type = t;
+			colour = c;
 		}
 
 		void Clear() {
-			type = "none";
-			colour = 0;
+			type = Type::empty;
+			colour = Colour::none;
 		}
 
-		string GetType() {
+		Type GetType() {
 			return type;
 		}
 
-		void SetType(string s)
+		void SetType(Type t)
 		{
-			type = s;
+			type = t;
 		}
 
-		int GetColour() {
+		Colour GetColour() {
 			return colour;
 		}
 
-		void SetColour(int c)
+		void SetColour(Colour c)
 		{
 			colour = c;
 		}
