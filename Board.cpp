@@ -12,29 +12,32 @@ class Board
 		Piece pieceBoard[12][12];
 
 		Board() {
-			//for (int i = 0; i < 8; ++i) {
-			//	binaryBoard[i] = new int[8];
-			//	pieceBoard[i] = new Piece[8];
-			//}
-			setupBoard();
+			setupTestBoard();
 		}
 
-		Piece GetSquare(int x, int y) {
-			return pieceBoard[x][y];
+		Piece GetSquare(int number, int letter) {
+			return pieceBoard[number][letter];
 		}
 
-		void SetSquare(int x, int y, Piece piece)
+		void SetSquare(int number, int letter, Piece piece)
 		{
-			pieceBoard[x][y] = piece;
+			pieceBoard[number][letter] = piece;
 		}
 
+		void ClearSquare(int number, int letter) {
+			pieceBoard[number][letter].Clear();
+		}
+
+		
 		void printBoard() {
 			//used to get string of enum
 			string TypeToString[] = {"none", "pawn", "rook", "bishop", "knight", "king",
 				"queen", "pawnEnPassant", "kingCastle", "rookCastle", "outOfBoard"};
 
 			cout << endl;
-			for (int i = 2; i < 10; ++i) {
+			//chess coordinates are bottom left to top right, c++ arrays are top left to bottom right
+			//so vertical printing must be printed top to bottom to print accurately
+			for (int i = 9; i > 1; --i) {
 				for (int j = 2; j < 10; ++j) {
 					if (pieceBoard[i][j].GetColour() == white) {
 						cout << "W" << "|";
@@ -50,7 +53,7 @@ class Board
 			cout << endl;
 		}
 
-		void setupBoard() {
+		void setupNormalBoard() {
 			for (int i = 0; i < 12; ++i) {
 				for (int j = 0; j < 12; ++j) {
 					
@@ -66,7 +69,7 @@ class Board
 					//set type
 					if (i == 2 || i == 9) { // iterate across the non-pawn piece rows
 						if (j == 2 || j == 9) {
-							pieceBoard[i][j].SetType(Type::rookCastle); //starting rooks can castle
+							pieceBoard[i][j].SetType(Type::rook); //starting rooks can castle
 						}
 						else if (j == 3 || j == 8) {
 							pieceBoard[i][j].SetType(Type::knight);
@@ -74,11 +77,11 @@ class Board
 						else if (j == 4 || j == 7) {
 							pieceBoard[i][j].SetType(Type::bishop);
 						}
-						else if ((j == 5 && i == 2) || (j == 6 && i == 9)) {
+						else if (j == 5) {
 							pieceBoard[i][j].SetType(Type::queen);
 						}
-						else if ((j == 6 && i == 2) || (j == 5 && i == 9)) {
-							pieceBoard[i][j].SetType(Type::kingCastle); // starting kings as castle
+						else if (j == 6) {
+							pieceBoard[i][j].SetType(Type::king); // starting kings as castle
 						}
 					}
 					else if (i == 3 || i == 8) { // iterate across the pawn piece rows
@@ -93,5 +96,29 @@ class Board
 					}
 				}
 			}
+		}
+
+		void setupTestBoard() {
+			for (int i = 0; i < 12; ++i) {
+				for (int j = 0; j < 12; ++j) {
+					//pad the outside with out of bounds
+					if (i < 2 || i > 9 || j < 2 || j > 9)
+					{
+						pieceBoard[i][j].SetType(Type::outOfBoard);
+						pieceBoard[i][j].SetColour(Colour::noColour);
+					}
+				}
+			}
+
+			//e5
+			pieceBoard[6][6].SetType(bishop);
+			pieceBoard[6][6].SetColour(white);
+
+			pieceBoard[6][4].SetType(pawn);
+			pieceBoard[6][4].SetColour(black);
+
+			pieceBoard[4][4].SetType(pawn);
+			pieceBoard[4][4].SetColour(black);
+
 		}
 };

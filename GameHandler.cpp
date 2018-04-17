@@ -41,7 +41,7 @@ class GameHandler {
 			letterNew = letterToNum(result.substr(2, 1)) + 1;
 			numberNew = atoi(result.substr(3, 1).c_str()) + 1;
 
-			Move move = Move(letterOld, numberOld, letterNew, numberNew);
+			Move move = Move(numberOld, letterOld, numberNew, letterNew);
 			vector<Move> validMoves = moveHandler.validMoves(currentTurn, mainBoard);
 
 			//if move is valid (identical move in valid move set) move piece and print board

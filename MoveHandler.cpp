@@ -7,21 +7,21 @@
 class Move { // information for an actual move
 
 	public:
-		int oldLet;
 		int oldNum;
-		int newLet;
+		int oldLet;
 		int newNum;
+		int newLet;
 
 		Move()
 		{
 
 		}
 
-		Move(int _oldLet, int _oldNum, int _newLet, int _newNum) {
-			oldLet = _oldLet;
+		Move(int _oldNum, int _oldLet, int _newNum, int _newLet) {
 			oldNum = _oldNum;
-			newLet = _newLet;
+			oldLet = _oldLet;
 			newNum = _newNum;
+			newLet = _newLet;
 		}
 };
 
@@ -46,7 +46,7 @@ class MoveHandler {
 
 			//generic move
 			board.SetSquare(move.newNum, move.newLet, pieceToMove);
-			board.GetSquare(move.oldNum, move.oldLet).Clear();
+			board.ClearSquare(move.oldNum, move.oldLet);
 
 		}
 
@@ -55,112 +55,112 @@ class MoveHandler {
 		vector<Move> validMoves(Colour& playerColour, Board& board) // return all valid moves for a given player
 		{
 			Colour opponentColour = (playerColour == white) ? black : white;
-			int pawnDirection = (playerColour == white) ? -1 : 1;
+			int pawnDirection = (playerColour == white) ? 1 : -1;
 			vector<Move> moves;
 
 			//set of coordiate differences to evaluate for knight
 			int knightMoveset[8][2] = { { -2,-1 },{ -2,1 },{ 2,-1 },{ 2,1 },{ -1,-2 },{ 1,-2 },{ -1,2 },{ 1,2 } };
 
-			for (int letterCoord = 2; letterCoord < 10; letterCoord++) {
-				for (int numberCoord = 2; numberCoord < 10; numberCoord++) {
-					//NORMAL MOVES
-					if (board.GetSquare(letterCoord, numberCoord).colour == playerColour)
+			//iterate over every non-padding square of the board
+			for (int numberCoord = 2; numberCoord < 10; numberCoord++) {
+				for (int letterCoord = 2; letterCoord < 10; letterCoord++) {
+					//only evaluate squares that contain the player's piece
+					if (board.GetSquare(numberCoord, letterCoord).colour == playerColour)
 					{
-						switch (board.GetSquare(letterCoord, numberCoord).type)
+						switch (board.GetSquare(numberCoord, letterCoord).type)
 						{
+						case pawnEnPassant: //pawn with en passant potential has the same moves as pawn
 						case pawn:
 							//for normal movement
-							if ((board.GetSquare(letterCoord + pawnDirection, numberCoord).type == none))
-								moves.push_back(Move(letterCoord, numberCoord, letterCoord + pawnDirection, numberCoord));
-							//check for first move for black pawns
-							if (playerColour == black && numberCoord == 6 && board.GetSquare(letterCoord, 4).type == none);
-								moves.push_back(Move(letterCoord, numberCoord, letterCoord, 4));
+							if ((board.GetSquare(numberCoord + pawnDirection, letterCoord).type == none))
+								moves.push_back(Move(numberCoord, letterCoord, numberCoord + pawnDirection, letterCoord));
 							//check for first move for white pawns
-							if (playerColour == white && numberCoord == 1 && board.GetSquare(letterCoord, 3).type == none);
-								moves.push_back(Move(letterCoord, numberCoord, letterCoord, 3));
+							if (playerColour == white && numberCoord == 3 && board.GetSquare(5, letterCoord).type == none)
+								moves.push_back(Move(numberCoord, letterCoord, 5, letterCoord));
+							//check for first move for white pawns
+							if (playerColour == black && numberCoord == 8 && board.GetSquare(6, letterCoord).type == none)
+								moves.push_back(Move(numberCoord, letterCoord, 6, letterCoord));
 							//check for normal piece taking
-							if (board.GetSquare(letterCoord + 1, numberCoord + pawnDirection).colour == opponentColour)
-								moves.push_back(Move(letterCoord, numberCoord, letterCoord + 1, numberCoord + pawnDirection));
-							if (board.GetSquare(letterCoord - 1, numberCoord + pawnDirection).colour == opponentColour) 
-								moves.push_back(Move(letterCoord, numberCoord, letterCoord - 1, numberCoord + pawnDirection));
+							if (board.GetSquare(numberCoord + pawnDirection, letterCoord + 1).colour == opponentColour)
+								moves.push_back(Move(numberCoord, letterCoord, numberCoord + pawnDirection, letterCoord + 1));
+							if (board.GetSquare(numberCoord - pawnDirection, letterCoord + 1).colour == opponentColour)
+								moves.push_back(Move(numberCoord, letterCoord, numberCoord - pawnDirection, letterCoord + 1));
 							break;
 						case queen: // queen will fall through rook and bishop to combine moves
 						case rookCastle: // rook with castle potential has the same moves as rook (castling is a king move)
 						case rook:
+							//check horizontally
+							for (int direction : { 1, -1 }){
+								int H = letterCoord + direction;
+								while (board.GetSquare(numberCoord, H).type == none // will immediately stop scanning when colliding with a non empty square, including out of bounds
+									|| board.GetSquare(numberCoord, H).colour == opponentColour) // will stop it colliding when the piece can be taken so it can be added to list
+								{
+									moves.push_back(Move(numberCoord, letterCoord, numberCoord, H));
+									//if piece can be taken break as further spaces are blocked
+									if (board.GetSquare(numberCoord, H).colour == opponentColour) {
+										break;
+									}
+									H += direction;
+								}
+							}
 							//check vertically
 							for (int direction : { 1, -1 }){
-								int i = numberCoord + direction;
-								while (board.GetSquare(letterCoord, i).type == none // will immediately stop scanning when colliding with a non empty square, including out of bounds
-									|| board.GetSquare(letterCoord, i).colour == opponentColour) // will stop it colliding when the piece can be taken so it can be added to list
+								int V = numberCoord + direction;
+								while (board.GetSquare(V, letterCoord).type == none
+									|| board.GetSquare(V, letterCoord).colour == opponentColour)
 								{
-									moves.push_back(Move(letterCoord, numberCoord, letterCoord, i));
+									moves.push_back(Move(numberCoord, letterCoord, V, letterCoord));
 									//if piece can be taken break as further spaces are blocked
-									if (board.GetSquare(letterCoord, i).colour == opponentColour) {
+									if (board.GetSquare(V, letterCoord).colour == opponentColour) {
 										break;
 									}
-									i += direction;
+									V += direction;
 								}
 							}
-							//check horizontally
-							for (int direction : { 1, -1 })
-							{
-								int i = letterCoord + direction;
-								while (board.GetSquare(i, numberCoord).type == none
-									&& board.GetSquare(i, numberCoord).colour == opponentColour)
-								{
-									moves.push_back(Move(letterCoord, numberCoord, i, numberCoord));
-									//if piece can be taken break as further spaces are blocked
-									if (board.GetSquare(i, numberCoord).colour == opponentColour) {
-										break;
-									}
-									i += direction;
-								}
-							}
-							if (board.GetSquare(letterCoord, numberCoord).type != queen)
+							if (board.GetSquare(numberCoord, letterCoord).type != queen)
 								//if evaluating for queen do not break and fall through to bishop moves
 								break;				
 						case bishop:
-							//do horizontal both directions
-							for (int directionH : { 1, -1 }) {
-								//do vertical both directions while in vertical
-								for (int directionV : { 1, -1 }) {
-									int H = letterCoord + directionH;
+							//do vertical both directions
+							for (int directionV : { 1, -1 }) {
+								//do horizontal both directions while in vertical
+								for (int directionH : { 1, -1 }) {
 									int V = numberCoord + directionV;
+									int H = letterCoord + directionH;
 
-									while (board.GetSquare(H, V).type == none
-										&& board.GetSquare(H, V).colour == opponentColour)
+									while (board.GetSquare(V, H).type == none
+										|| board.GetSquare(V, H).colour == opponentColour)
 									{
-										moves.push_back(Move(letterCoord, numberCoord, H, V));
+										moves.push_back(Move(numberCoord, letterCoord, V, H));
 										//if piece can be taken break as further spaces are blocked
-										if (board.GetSquare(H, V).colour == opponentColour) {
+										if (board.GetSquare(V, H).colour == opponentColour) {
 											break;
 										}
-										H += directionH;
 										V += directionV;
+										H += directionH;
 									}
 								}
 							}
 							break;
 						case knight:
-							
-
 							for (int i = 0; i < 8; i++) {
-								int H = letterCoord + knightMoveset[i][0];
-								int V = numberCoord + knightMoveset[i][1];
+								int V = numberCoord + knightMoveset[i][0];
+								int H = letterCoord + knightMoveset[i][1];
 
-								if (board.GetSquare(H, V).colour == opponentColour || board.GetSquare(H, V).type == none)
-									moves.push_back(Move(letterCoord, numberCoord, H, V));
+								if (board.GetSquare(V, H).colour == opponentColour || board.GetSquare(V, H).type == none)
+									moves.push_back(Move(numberCoord, letterCoord, V, H));
 							}
 							break;
+						case kingCastle: //king with castle has same moves as king but with extra moves
 						case king:
 							//iterate over all adjacent spaces. 0,0 is unnecessarily evaluated but will not be added as king cannot take its own colour
-							for (int directionH = -1; directionH <= 1; directionH++) {
-								for (int directionV = -1; directionV <= 1; directionV++) {
-									int H = letterCoord + directionH;
+							for (int directionV : { -1, 0, 1}) {
+								for (int directionH : { -1, 0, 1}) {
 									int V = numberCoord + directionV;
+									int H = letterCoord + directionH;
 
-									if (board.GetSquare(H, V).colour == opponentColour || board.GetSquare(H, V).type == none) {
-										moves.push_back(Move(letterCoord, numberCoord, H, V));
+									if (board.GetSquare(V, H).colour == opponentColour || board.GetSquare(V, H).type == none) {
+										moves.push_back(Move(numberCoord, letterCoord, V, H));
 									}
 								}
 							}
