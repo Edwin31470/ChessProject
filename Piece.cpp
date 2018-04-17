@@ -4,7 +4,7 @@
 using namespace std;
 
 enum Type {
-	empty,
+	none,
 	pawn,
 	rook,
 	bishop,
@@ -20,8 +20,10 @@ enum Type {
 enum Colour {
 	white,
 	black,
-	none
+	noColour
 };
+
+
 
 class Piece {
 
@@ -30,8 +32,8 @@ class Piece {
 		Colour colour;
 
 		Piece() { // if no information given, assume an empty board square
-			type = Type::empty;
-			colour = Colour::none;
+			type = Type::none;
+			colour = Colour::noColour;
 		}
 
 		Piece(Type t, Colour c) {
@@ -40,8 +42,8 @@ class Piece {
 		}
 
 		void Clear() {
-			type = Type::empty;
-			colour = Colour::none;
+			type = Type::none;
+			colour = Colour::noColour;
 		}
 
 		Type GetType() {

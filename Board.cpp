@@ -7,7 +7,9 @@ using namespace std;
 class Board
 {
 	public:
-		Piece **pieceBoard = new Piece*[8];
+		//8x8 board with 2 square padding around
+		//Piece **pieceBoard = new Piece*[12];
+		Piece pieceBoard[12][12];
 
 		Board() {
 			//for (int i = 0; i < 8; ++i) {
@@ -18,25 +20,30 @@ class Board
 		}
 
 		Piece GetSquare(int x, int y) {
-			return pieceBoard[x - 1][y - 1];
+			return pieceBoard[x][y];
 		}
 
 		void SetSquare(int x, int y, Piece piece)
 		{
-			pieceBoard[x - 1][y - 1] = piece;
+			pieceBoard[x][y] = piece;
 		}
 
 		void printBoard() {
+			//used to get string of enum
+			string TypeToString[] = {"none", "pawn", "rook", "bishop", "knight", "king",
+				"queen", "pawnEnPassant", "kingCastle", "rookCastle", "outOfBoard"};
+
 			cout << endl;
-			for (int i = 0; i < 8; ++i) {
-				for (int j = 0; j < 8; ++j) {
-					if (pieceBoard[i][j].GetColour() == 1) {
+			for (int i = 2; i < 10; ++i) {
+				for (int j = 2; j < 10; ++j) {
+					if (pieceBoard[i][j].GetColour() == white) {
 						cout << "W" << "|";
 					}
-					else if (pieceBoard[i][j].GetColour() == 2) {
+					else if (pieceBoard[i][j].GetColour() == black) {
 						cout << "B" << "|";
 					}
-					cout << pieceBoard[i][j].GetType() << "   ";
+
+					cout << TypeToString[pieceBoard[i][j].GetType()] << "   ";
 				}
 				cout << endl;
 			}
@@ -44,37 +51,45 @@ class Board
 		}
 
 		void setupBoard() {
-			for (int i = 0; i < 8; ++i) {
-				for (int j = 0; j < 8; ++j) {
+			for (int i = 0; i < 12; ++i) {
+				for (int j = 0; j < 12; ++j) {
 					
 					//set white
-					if (i <= 1){
+					if (i > 1 && i < 4){
 						pieceBoard[i][j].SetColour(Colour::white);
 					}
-					else if (i >= 6) {
+					//set black
+					else if (i > 7 && i < 10) {
 						pieceBoard[i][j].SetColour(Colour::black);
 					}
 					
 					//set type
-					if (i == 0 || i == 7) { // iterate across the non-pawn piece rows
-						if (j == 0 || j == 7) {
+					if (i == 2 || i == 9) { // iterate across the non-pawn piece rows
+						if (j == 2 || j == 9) {
 							pieceBoard[i][j].SetType(Type::rookCastle); //starting rooks can castle
 						}
-						else if (j == 1 || j == 6) {
+						else if (j == 3 || j == 8) {
 							pieceBoard[i][j].SetType(Type::knight);
 						}
-						else if (j == 2 || j == 5) {
+						else if (j == 4 || j == 7) {
 							pieceBoard[i][j].SetType(Type::bishop);
 						}
-						else if ((j == 3 && i == 0) || (j == 4 && i == 7)) {
+						else if ((j == 5 && i == 2) || (j == 6 && i == 9)) {
 							pieceBoard[i][j].SetType(Type::queen);
 						}
-						else if ((j == 4 && i == 0) || (j == 3 && i == 7)) {
-							pieceBoard[i][j].SetType(Type::kingCastle); // starting kings cas castle
+						else if ((j == 6 && i == 2) || (j == 5 && i == 9)) {
+							pieceBoard[i][j].SetType(Type::kingCastle); // starting kings as castle
 						}
 					}
-					else if (i == 1 || i == 6) { // iterate across the pawn piece rows
+					else if (i == 3 || i == 8) { // iterate across the pawn piece rows
 						pieceBoard[i][j].SetType(Type::pawn);
+					}
+
+					//pad the outside with out of bounds
+					if (i < 2 || i > 9 || j < 2 || j > 9)
+					{
+						pieceBoard[i][j].SetType(Type::outOfBoard);
+						pieceBoard[i][j].SetColour(Colour::noColour);
 					}
 				}
 			}

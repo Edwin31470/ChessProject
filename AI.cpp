@@ -11,4 +11,4 @@ class AI
 {
 	Board board;
 	public:
-}
+};

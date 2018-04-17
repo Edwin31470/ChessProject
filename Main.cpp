@@ -3,18 +3,18 @@
 #include <iostream>;
 #include <stdlib.h>;
 
-#include "TestingHandler.cpp";
+#include "GameHandler.cpp";
 
 using namespace std;
 
 int main(int argc, char * argv[]) {
 
-	TestingHandler handler;
+	GameHandler handler;
 
 	bool done = false;
 	while (!done)
 	{
-		handler.getMove();
+		handler.humanMove();
 	}
 
 	return 0;

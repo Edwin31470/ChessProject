@@ -8,7 +8,7 @@ class BitBoard
 {
 public:
 	//8x8 arrays for each colour of piece
-	bitset<64> whitePawns;
+	unsigned int **whitePawns = new unsigned int*[8];
 	unsigned int **whiteRooks = new unsigned int*[8];
 	unsigned int **whiteBishops = new unsigned int*[8];
 	unsigned int **whiteKnights = new unsigned int*[8];
@@ -32,7 +32,7 @@ public:
 	void setupBoard() {
 		//white pawns
 		for (int i = 0; i < 8; ++i) {
-			whitePawns.set[8 + i] = 1;
+			whitePawns[i][1] = 1;
 		}
 
 		//black pawns
