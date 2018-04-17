@@ -12,7 +12,8 @@ class Board
 		Piece pieceBoard[12][12];
 
 		Board() {
-			setupTestBoard();
+			setupNormalBoard();
+			//setupTestBoard();
 		}
 
 		Piece GetSquare(int number, int letter) {
@@ -31,22 +32,23 @@ class Board
 		
 		void printBoard() {
 			//used to get string of enum
-			string TypeToString[] = {"none", "pawn", "rook", "bishop", "knight", "king",
-				"queen", "pawnEnPassant", "kingCastle", "rookCastle", "outOfBoard"};
-
-			cout << endl;
+			//in order: "none", "pawn", "rook", "bishop", "knight", "king", "queen", "pawnEnPassant", "kingCastle", "rookCastle", "outOfBoard"
+			string TypeToString[] = { "[]", "P", "R", "B", "N", "K", "Q", "E", "C", "H", "#" };
+			
 			//chess coordinates are bottom left to top right, c++ arrays are top left to bottom right
 			//so vertical printing must be printed top to bottom to print accurately
+			cout << endl << "  A  B  C  D  E  F  G  H" << endl;
 			for (int i = 9; i > 1; --i) {
+				cout << i - 1 << " ";
 				for (int j = 2; j < 10; ++j) {
 					if (pieceBoard[i][j].GetColour() == white) {
-						cout << "W" << "|";
+						cout << "w";
 					}
 					else if (pieceBoard[i][j].GetColour() == black) {
-						cout << "B" << "|";
+						cout << "b";
 					}
 
-					cout << TypeToString[pieceBoard[i][j].GetType()] << "   ";
+					cout << TypeToString[pieceBoard[i][j].GetType()] << " ";
 				}
 				cout << endl;
 			}

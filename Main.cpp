@@ -11,11 +11,5 @@ int main(int argc, char * argv[]) {
 
 	GameHandler handler;
 
-	bool done = false;
-	while (!done)
-	{
-		handler.humanMove();
-	}
-
 	return 0;
 }

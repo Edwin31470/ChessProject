@@ -39,20 +39,43 @@ class MoveHandler {
 
 	public:
 		//assumes move is already valid
-		void movePiece(Move& move, Board& board) {
+		void movePiece(Move& move, Colour currentTurn, Board& board) {
 
-			Piece pieceToTake = board.GetSquare(move.newNum , move.newLet );
-			Piece pieceToMove = board.GetSquare(move.oldNum , move.oldLet);
+			//clear en passant pawns on en passant moves
+			if (board.GetSquare(move.oldNum,move.oldLet).type == pawn && board.GetSquare(move.oldNum, move.newNum).type == none) {
+				if (currentTurn == white && board.GetSquare(move.newNum - 1, move.newLet).type == pawnEnPassant)
+					board.ClearSquare(move.newNum - 1, move.newLet);
+				if (currentTurn == black && board.GetSquare(move.newNum + 1, move.newLet).type == pawnEnPassant)
+					board.ClearSquare(move.newNum + 1, move.newLet);
+			}
+
+			//clear all pawns of en passant flags
+			for (int numberCoord = 2; numberCoord < 10; numberCoord++) {
+				for (int letterCoord = 2; letterCoord < 10; letterCoord++) {
+					if (board.GetSquare(numberCoord, letterCoord).type == pawnEnPassant)
+						board.SetSquare(numberCoord, letterCoord, Piece(pawn, board.GetSquare(numberCoord, letterCoord).colour));
+				}
+			}
+
+			//set pawns that will move two squares to en passant potential
+			if (board.GetSquare(move.oldNum, move.oldLet).type == pawn && abs(move.oldNum - move.newNum) == 2) {
+				board.SetSquare(move.oldNum, move.oldLet, Piece(pawnEnPassant, currentTurn));
+			}
 
 			//generic move
-			board.SetSquare(move.newNum, move.newLet, pieceToMove);
+			board.SetSquare(move.newNum, move.newLet, board.GetSquare(move.oldNum, move.oldLet));
 			board.ClearSquare(move.oldNum, move.oldLet);
 
+			//promotes pawns on the back row to queens
+			int numberCoord = (currentTurn == white) ? 9 : 2;
+			for (int letterCoord = 2; letterCoord < 10; letterCoord++) {
+				if (board.GetSquare(numberCoord, letterCoord).type == pawn) {
+					board.SetSquare(numberCoord, letterCoord, Piece(queen, currentTurn));
+				}
+			}
 		}
 
-
-
-		vector<Move> validMoves(Colour& playerColour, Board& board) // return all valid moves for a given player
+		vector<Move> validMoves(Colour playerColour, Board& board) // return all valid moves for a given player
 		{
 			Colour opponentColour = (playerColour == white) ? black : white;
 			int pawnDirection = (playerColour == white) ? 1 : -1;
@@ -83,8 +106,8 @@ class MoveHandler {
 							//check for normal piece taking
 							if (board.GetSquare(numberCoord + pawnDirection, letterCoord + 1).colour == opponentColour)
 								moves.push_back(Move(numberCoord, letterCoord, numberCoord + pawnDirection, letterCoord + 1));
-							if (board.GetSquare(numberCoord - pawnDirection, letterCoord + 1).colour == opponentColour)
-								moves.push_back(Move(numberCoord, letterCoord, numberCoord - pawnDirection, letterCoord + 1));
+							if (board.GetSquare(numberCoord + pawnDirection, letterCoord - 1).colour == opponentColour)
+								moves.push_back(Move(numberCoord, letterCoord, numberCoord + pawnDirection, letterCoord - 1));
 							break;
 						case queen: // queen will fall through rook and bishop to combine moves
 						case rookCastle: // rook with castle potential has the same moves as rook (castling is a king move)
