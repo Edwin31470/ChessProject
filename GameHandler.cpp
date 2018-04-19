@@ -2,18 +2,19 @@
 #include <string>;
 #include <iostream>;
 
-#include "AI.cpp";
+#include "BoardHandler.cpp";
 
 using namespace std;
 
 class GameHandler {
 
 	public:
-		Board realBoard;
 		MoveHandler moveHandler;
+		BoardHandler boardHandler;
 		AI ai;
 
-		Colour currentTurn = white;
+		Board realBoard;
+		Colour currentTurn = Colour::white;
 
 		//bool humanCheck = false;
 		//bool aiCheck = false;
@@ -24,7 +25,8 @@ class GameHandler {
 		bool aiHasKing = true;
 
 		GameHandler() {	
-			realBoard.printBoard();
+			boardHandler.setupNormalBoard(realBoard);
+			boardHandler.printBoard(realBoard);
 
 			//while both kings are in play, play the game
 			while (humanHasKing && aiHasKing)
@@ -45,7 +47,7 @@ class GameHandler {
 					humanHasKing = checkKing(white, realBoard);
 				}
 				currentTurn = (currentTurn == white) ? black : white;
-				realBoard.printBoard();
+				boardHandler.printBoard(realBoard);
 			}
 
 			if (!aiHasKing) {
@@ -83,7 +85,7 @@ class GameHandler {
 				if (move.newLet == validMove.newLet && move.newNum == validMove.newNum &&
 					move.oldLet == validMove.oldLet && move.oldNum == validMove.oldNum) {
 						moveHandler.movePiece(move, white, realBoard);
-						realBoard.printBoard();
+						boardHandler.printBoard(realBoard);
 						return 1;
 				}
 			}
@@ -93,7 +95,7 @@ class GameHandler {
 		}
 
 		void aiMove() {
-			ai.randomMove(currentTurn, realBoard);
+			ai.AIMove(currentTurn, realBoard);
 		}
 
 		//converts input letter to a coordinate the program can understand

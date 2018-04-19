@@ -12,8 +12,7 @@ class Board
 		Piece pieceBoard[12][12];
 
 		Board() {
-			setupNormalBoard();
-			//setupTestBoard();
+
 		}
 
 		Piece GetSquare(int number, int letter) {
@@ -25,102 +24,29 @@ class Board
 			pieceBoard[number][letter] = piece;
 		}
 
+		//only used for board setup
+		void SetTypeOfPiece(int number, int letter, Type type)
+		{
+			pieceBoard[number][letter].type = type;
+		}
+
+		//only used for board setup
+		void SetColourOfPiece(int number, int letter, Colour colour)
+		{
+			pieceBoard[number][letter].colour = colour;
+		}
+
 		void ClearSquare(int number, int letter) {
 			pieceBoard[number][letter].Clear();
 		}
 
-		
-		void printBoard() {
-			//used to get string of enum
-			//in order: "none", "pawn", "rook", "bishop", "knight", "king", "queen", "pawnEnPassant", "kingCastle", "rookCastle", "outOfBoard"
-			string TypeToString[] = { "[]", "P", "R", "B", "N", "K", "Q", "E", "C", "H", "#" };
-			
-			//chess coordinates are bottom left to top right, c++ arrays are top left to bottom right
-			//so vertical printing must be printed top to bottom to print accurately
-			cout << endl << "  A  B  C  D  E  F  G  H" << endl;
-			for (int i = 9; i > 1; --i) {
-				cout << i - 1 << " ";
-				for (int j = 2; j < 10; ++j) {
-					if (pieceBoard[i][j].GetColour() == white) {
-						cout << "w";
-					}
-					else if (pieceBoard[i][j].GetColour() == black) {
-						cout << "b";
-					}
-
-					cout << TypeToString[pieceBoard[i][j].GetType()] << " ";
-				}
-				cout << endl;
-			}
-			cout << endl;
-		}
-
-		void setupNormalBoard() {
-			for (int i = 0; i < 12; ++i) {
-				for (int j = 0; j < 12; ++j) {
-					
-					//set white
-					if (i > 1 && i < 4){
-						pieceBoard[i][j].SetColour(Colour::white);
-					}
-					//set black
-					else if (i > 7 && i < 10) {
-						pieceBoard[i][j].SetColour(Colour::black);
-					}
-					
-					//set type
-					if (i == 2 || i == 9) { // iterate across the non-pawn piece rows
-						if (j == 2 || j == 9) {
-							pieceBoard[i][j].SetType(Type::rook); //starting rooks can castle
-						}
-						else if (j == 3 || j == 8) {
-							pieceBoard[i][j].SetType(Type::knight);
-						}
-						else if (j == 4 || j == 7) {
-							pieceBoard[i][j].SetType(Type::bishop);
-						}
-						else if (j == 5) {
-							pieceBoard[i][j].SetType(Type::queen);
-						}
-						else if (j == 6) {
-							pieceBoard[i][j].SetType(Type::king); // starting kings as castle
-						}
-					}
-					else if (i == 3 || i == 8) { // iterate across the pawn piece rows
-						pieceBoard[i][j].SetType(Type::pawn);
-					}
-
-					//pad the outside with out of bounds
-					if (i < 2 || i > 9 || j < 2 || j > 9)
-					{
-						pieceBoard[i][j].SetType(Type::outOfBoard);
-						pieceBoard[i][j].SetColour(Colour::noColour);
-					}
+		//used to copy the state of one board to this board
+		void Equals(Board& boardToCopy)
+		{
+			for (int numberCoord = 0; numberCoord < 12; numberCoord++) {
+				for (int letterCoord = 0; letterCoord < 12; letterCoord++) {
+					pieceBoard[numberCoord][letterCoord] = boardToCopy.GetSquare(numberCoord, letterCoord);
 				}
 			}
-		}
-
-		void setupTestBoard() {
-			for (int i = 0; i < 12; ++i) {
-				for (int j = 0; j < 12; ++j) {
-					//pad the outside with out of bounds
-					if (i < 2 || i > 9 || j < 2 || j > 9)
-					{
-						pieceBoard[i][j].SetType(Type::outOfBoard);
-						pieceBoard[i][j].SetColour(Colour::noColour);
-					}
-				}
-			}
-
-			//e5
-			pieceBoard[6][6].SetType(bishop);
-			pieceBoard[6][6].SetColour(white);
-
-			pieceBoard[6][4].SetType(pawn);
-			pieceBoard[6][4].SetColour(black);
-
-			pieceBoard[4][4].SetType(pawn);
-			pieceBoard[4][4].SetColour(black);
-
 		}
 };
