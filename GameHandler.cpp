@@ -26,10 +26,12 @@ class GameHandler {
 
 		GameHandler() {	
 			boardHandler.setupNormalBoard(realBoard);
+			//boardHandler.setupTestBoard(realBoard);
 			boardHandler.printBoard(realBoard);
 
 			//while both kings are in play, play the game
-			while (humanHasKing && aiHasKing)
+			//treu is a testing flag to not end the game when using the test board. hopefully I have removed it
+			while (humanHasKing && aiHasKing || true)
 			{
 				if (currentTurn == white)
 				{
@@ -43,13 +45,19 @@ class GameHandler {
 				}
 				else if (currentTurn == black)
 				{
-					aiMove();
+					cout << "Calculating AI move" << endl;
+					aiMove(6); // int is depth to search. must be an even number to evaluate own moves last
 					boardHandler.printBoard(realBoard);
 					humanHasKing = checkKing(white, realBoard);
 				}
 				currentTurn = (currentTurn == white) ? black : white;
 			}
 
+			
+			if (true)
+			{
+
+			}
 			if (!aiHasKing) {
 				cout << endl << "Congratulations, you win!" << endl;
 			}
@@ -70,32 +78,38 @@ class GameHandler {
 			cin >> result;
 
 			// +1 for padding(+1 instead of +2 as array is already 0 indexed)
-			letterOld = letterToNum(result.substr(0, 1)) + 1;
-			numberOld = atoi(result.substr(1, 1).c_str()) + 1;
-
-			letterNew = letterToNum(result.substr(2, 1)) + 1;
-			numberNew = atoi(result.substr(3, 1).c_str()) + 1;
-
-			Move move = Move(numberOld, letterOld, numberNew, letterNew);
-			vector<Move> validMoves = moveHandler.validMoves(currentTurn, realBoard);
-
-			//if move is valid (identical move in valid move set) move piece and print board
-			for each (Move validMove in validMoves)
+			try
 			{
-				if (move.newLet == validMove.newLet && move.newNum == validMove.newNum &&
-					move.oldLet == validMove.oldLet && move.oldNum == validMove.oldNum) {
-						moveHandler.movePiece(move, white, realBoard);
-						boardHandler.printBoard(realBoard);
-						return 1;
+				letterOld = letterToNum(result.substr(0, 1)) + 1;
+				numberOld = atoi(result.substr(1, 1).c_str()) + 1;
+
+				letterNew = letterToNum(result.substr(2, 1)) + 1;
+				numberNew = atoi(result.substr(3, 1).c_str()) + 1;
+
+				Move move = Move(numberOld, letterOld, numberNew, letterNew);
+				vector<Move> validMoves = moveHandler.validMoves(currentTurn, realBoard);
+
+				//if move is valid (identical move in valid move set) move piece and print board
+				for each (Move validMove in validMoves)
+				{
+					if (move.newLet == validMove.newLet && move.newNum == validMove.newNum &&
+						move.oldLet == validMove.oldLet && move.oldNum == validMove.oldNum) {
+							moveHandler.movePiece(move, white, realBoard);
+							boardHandler.printBoard(realBoard);
+							return 1;
+					}
 				}
 			}
-
+			catch (exception e) {
+				cout << "Error, that is not a move" << endl;
+				return 0;
+			}
 			cout << "That move is invalid." << endl;
 			return 0;
 		}
 
-		void aiMove() {
-			ai.AIMove(currentTurn, realBoard);
+		void aiMove(int depth) {
+			ai.AIMove(currentTurn, realBoard, depth);
 		}
 
 		//converts input letter to a coordinate the program can understand
@@ -134,12 +148,10 @@ class GameHandler {
 					if ((board.GetSquare(numberCoord, letterCoord).type == king || board.GetSquare(numberCoord, letterCoord).type == kingCastle)
 						&& board.GetSquare(numberCoord, letterCoord).colour == colour)
 					{
-						cout << colour << " King detected!" << endl;
 						return true;
 					}		
 				}
 			}
-			cout << "No " << colour << " King detected!" << endl;
 			return false;
 		}
 };

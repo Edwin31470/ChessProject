@@ -89,21 +89,21 @@ public:
 				//pad the outside with out of bounds
 				if (i < 2 || i > 9 || j < 2 || j > 9)
 				{
-					board.GetSquare(i, j).SetType(Type::outOfBoard);
-					board.GetSquare(i, j).SetColour(Colour::noColour);
+					board.SetTypeOfPiece(i, j, Type::outOfBoard);
+					board.SetColourOfPiece(i, j, Colour::noColour);
 				}
 			}
 		}
 
 		//e5
-		board.GetSquare(6, 6).SetType(Type::bishop);
-		board.GetSquare(6, 6).SetColour(Colour::white);
+		board.SetTypeOfPiece(6, 6, Type::rook);
+		board.SetColourOfPiece(6, 6, Colour::black);
 
-		board.GetSquare(6, 4).SetType(Type::pawn);
-		board.GetSquare(6, 4).SetColour(Colour::black);
+		board.SetTypeOfPiece(6, 4, Type::pawn);
+		board.SetColourOfPiece(6, 4, Colour::white);
 
-		board.GetSquare(4, 4).SetType(Type::pawn);
-		board.GetSquare(4, 4).SetColour(Colour::black);
+		board.SetTypeOfPiece(4, 3, Type::pawn);
+		board.SetColourOfPiece(4, 3, Colour::white);
 
 	}
 };

@@ -27,9 +27,9 @@ class AI
 			cout << "AI move: " << realBoard.GetSquare(move.newLet, move.newNum).type << " to " << move.newLet << move.newNum << endl;
 		}
 
-		void AIMove(Colour colour, Board& realBoard) {
+		void AIMove(Colour colour, Board& realBoard, int depth) {
 
-			Move bestMove = negaMaxInitial(realBoard, 6, -1000, 1000, colour);
+			Move bestMove = negaMaxInitial(realBoard, depth, -1000, 1000, colour);
 			moveHandler.movePiece(bestMove, colour, realBoard);
 
 			cout << "AI move: " << realBoard.GetSquare(bestMove.newLet, bestMove.newNum).type << " to " << bestMove.newLet << bestMove.newNum << endl;
@@ -47,15 +47,13 @@ class AI
 			int bestValue = -1000;
 			for each (Move move in childNodes)
 			{
-				Board board;
-				board.Equals(node);
+				Board board = node;
 				moveHandler.movePiece(move, colour, board);
 				int value = negaMax(board, depth - 1, -beta, -alpha, (colour == white) ? black : white);
-				alpha = max(alpha, value);
-				if (max(bestValue, value)) {
-					bestValue = value;
+				if (value > bestValue)
 					bestMove = move;
-				}
+				alpha = max(alpha, value);
+				bestValue = max(bestValue, value);
 			}
 
 			//if all best values are the same thus no moves are best do the first move in the vector
@@ -69,7 +67,8 @@ class AI
 		{
 			if (depth == 0) // node is a terminal node
 			{
-				return evaluateNode(node, colour); //should be a quiescence search
+				int nodeScore = evaluateNode(node, colour); //should be a quiescence search
+				return nodeScore;
 			}
 			vector<Move> childNodes = moveHandler.validMoves(colour, node);
 			//order nodes
@@ -77,10 +76,10 @@ class AI
 			int bestValue = -1000;
 			for each (Move move in childNodes)
 			{
-				Board board;
-				board.Equals(node);
+				Board board = node;
 				moveHandler.movePiece(move, colour, board);
 				int value = negaMax(board, depth - 1, -beta, -alpha, (colour == white) ? black : white);
+				//cout << "Node evaluation of: " << value << " at depth " << depth << endl;
 				bestValue = max(bestValue, value);
 				alpha = max(alpha, value);
 				if (alpha >= beta) {
