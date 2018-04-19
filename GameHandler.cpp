@@ -44,10 +44,10 @@ class GameHandler {
 				else if (currentTurn == black)
 				{
 					aiMove();
+					boardHandler.printBoard(realBoard);
 					humanHasKing = checkKing(white, realBoard);
 				}
 				currentTurn = (currentTurn == white) ? black : white;
-				boardHandler.printBoard(realBoard);
 			}
 
 			if (!aiHasKing) {
@@ -57,7 +57,7 @@ class GameHandler {
 				cout << endl << "Unfortunately, the ai has beaten you!" << endl;
 			}
 			cout << endl << "Thank you for playing!" << endl;
-			
+			cin;
 		}
 
 		//return of 1 means a valid move has been performed. 0 is an invalid move

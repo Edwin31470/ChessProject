@@ -29,7 +29,7 @@ class AI
 
 		void AIMove(Colour colour, Board& realBoard) {
 
-			Move bestMove = negaMaxInitial(realBoard, 4, -1000, 1000, colour);
+			Move bestMove = negaMaxInitial(realBoard, 6, -1000, 1000, colour);
 			moveHandler.movePiece(bestMove, colour, realBoard);
 
 			cout << "AI move: " << realBoard.GetSquare(bestMove.newLet, bestMove.newNum).type << " to " << bestMove.newLet << bestMove.newNum << endl;
@@ -57,6 +57,11 @@ class AI
 					bestMove = move;
 				}
 			}
+
+			//if all best values are the same thus no moves are best do the first move in the vector
+			if (bestMove.newLet + bestMove.newNum + bestMove.oldLet + bestMove.oldNum == 0)
+				bestMove = childNodes[0];
+
 			return bestMove;
 		}
 
@@ -72,7 +77,8 @@ class AI
 			int bestValue = -1000;
 			for each (Move move in childNodes)
 			{
-				Board board = node;
+				Board board;
+				board.Equals(node);
 				moveHandler.movePiece(move, colour, board);
 				int value = negaMax(board, depth - 1, -beta, -alpha, (colour == white) ? black : white);
 				bestValue = max(bestValue, value);
