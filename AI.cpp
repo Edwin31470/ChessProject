@@ -19,6 +19,98 @@ class AI
 	int numberOfNodesScanned = 0;
 	int numberOfCutoffs = 0;
 
+	//Values complementary to the Type enum
+	// none, pawn, rook, bishop, knight, king, queen, pawnEnPassant, kingCastle, rookCastle
+	int typeValue[10] = { 0, 100, 500, 330, 320, 20000, 900, 100, 20000, 500 };
+
+	//arrays used for calculating the value of the positions of pieces
+	//source: h/ttps://chessprogramming.wikispaces.com/Simplified%20evaluation%20function
+	//arrays are from the perspective of white
+	int positionalPawnArray[8][8] =
+	{
+		{ 0, 0, 0, 0, 0, 0, 0, 0 },
+		{ 50, 50, 50, 50, 50, 50, 50, 50 },
+		{ 10, 10, 20, 30, 30, 20, 10, 10 },
+		{ 10, 10, 20, 30, 30, 20, 10, 10 },
+		{ 5, 5, 10, 25, 25, 10, 5, 5 },
+		{ 0, 0, 0, 20, 20, 0, 0, 0 },
+		{ 5, -5, -10, 0, 0, -10, -5, 5 },
+		{ 0, 0, 0, 0, 0, 0, 0, 0 }
+	};
+
+	int positionalKnightArray[8][8] =
+	{
+		{ -50, -40, -30, -30, -30, -30, -40, -50 },
+		{ -40, -20, 0, 0, 0, 0, -20, -40 },
+		{ -30, 0, 10, 15, 15, 10, 0, -30 },
+		{ -30, 5, 15, 20, 20, 15, 5, -30 },
+		{ -30, 0, 15, 20, 20, 15, 0, -30 },
+		{ -30, 5, 10, 15, 15, 10, 5, -30 },
+		{ -40, -20, 0, 5, 5, 0, -20, -40 },
+		{ -50,-40, -10, -10, -10, -10, -40, -50 }
+	};
+
+	int positionalBishopArray[8][8] =
+	{
+		{ -20, -10, -10, -10, -10, -10, -10, -20 },
+		{ -10, 0, 0, 0, 0, 0, 0, -10 },
+		{ -10, 0, 5, 10, 10, 5, 0, -10 },
+		{ -10, 5, 5, 10, 10, 5, 5, -10 },
+		{ -10, 0, 10, 10, 10, 10, 10, -10 },
+		{ -10, 10, 10, 10, 10, 10, 10, -10 },
+		{ -10, 5, 0, 0, 0, 0, 5, -10 },
+		{ -20, -10, -10, -10, -10, -10, -10, -20 },
+	};
+
+	int positionalRookArray[8][8] =
+	{
+		{ 0, 0, 0, 0, 0, 0, 0, 0},
+		{ 5, 10, 10, 10, 10, 10, 10, 5 },
+		{ -5, 0, 0, 0, 0, 0, 0, -5 },
+		{ -5, 0, 0, 0, 0, 0, 0, -5 },
+		{ -5, 0, 0, 0, 0, 0, 0, -5 },
+		{ -5, 0, 0, 0, 0, 0, 0, -5 },
+		{ -5, 0, 0, 0, 0, 0, 0, -5 },
+		{ 0, 0, 0, 5, 5, 0, 0, 0 },
+	};
+
+	int positionalQueenArray[8][8] =
+	{
+		{ -20, -10, -10, -5, -5, -10, 0, -20 },
+		{ -10, 0, 0, 0, 0, 0, 0, -10 },
+		{ -10, 0, 5, 5, 5, 5, 0, -10 },
+		{ -5, 0, 5, 5, 5, 5, 0, -5 },
+		{ 0, 0, 5, 5, 5, 5, 0, -5 },
+		{ -10, 5, 5, 5, 5, 5, 0, -10 },
+		{ -10, 0, 5, 0, 0, 0, 0, -10 },
+		{ -20, -10, -10, -5, -5, -10, -10, -20 },
+	};
+
+	int positionalKingArray[8][8] =
+	{
+		{ -30, -40, -40, -50, -50, -40, -40, -30 },
+		{ -30, -40, -40, -50, -50, -40, -40, -30 },
+		{ -30, -40, -40, -50, -50, -40, -40, -30 },
+		{ -30, -40, -40, -50, -50, -40, -40, -30 },
+		{ -20, -30, -30, -40, -40, -30, -30, -20 },
+		{ -10, -20, -20, -20, -20, -20, -20, -10 },
+		{ 20, 20, 0, 0, 0, 0, 20, 20 },
+		{ 20, 30, 10, 0, 0, 10, 30, 20 },
+	};
+
+	int positionalKingEndArray[8][8] =
+	{
+		{ 0, 0, 0, 0, 0, 0, 0, 0 },
+		{ 0, 0, 0, 0, 0, 0, 0, 0 },
+		{ 0, 0, 0, 0, 0, 0, 0, 0 },
+		{ 0, 0, 0, 0, 0, 0, 0, 0 },
+		{ 0, 0, 0, 0, 0, 0, 0, 0 },
+		{ 0, 0, 0, 0, 0, 0, 0, 0 },
+		{ 0, 0, 0, 0, 0, 0, 0, 0 },
+		{ 0, 0, 0, 0, 0, 0, 0, 0 },
+	};
+
+
 	public:
 		AI() {
 
@@ -36,7 +128,7 @@ class AI
 		void AIMove(Colour colour, Board& realBoard, int depth) {
 
 			clock_t timeOfStart = clock();
-			Move bestMove = negaMaxInitial(realBoard, depth, -1000, 1000, colour);
+			Move bestMove = negaMaxInitial(realBoard, depth, -1000000, 1000000, colour); // arbitarily high value of 1 million is used
 			clock_t timeOfEnd = clock();
 			
 			moveHandler.movePiece(bestMove, colour, realBoard);
@@ -55,7 +147,7 @@ class AI
 			//order nodes
 
 			Move bestMove(0,0,0,0);
-			int bestValue = -1000;
+			int bestValue = -1000000; // arbitarily high value of 1 million is used
 			for each (Move move in childNodes)
 			{
 				Board board = node;
@@ -86,7 +178,7 @@ class AI
 			numberOfNodesScanned += childNodes.size();
 			//order nodes
 
-			int bestValue = -1000;
+			int bestValue = -1000000; // arbitarily high value of 1 million is used
 			for each (Move move in childNodes)
 			{
 				Board board = node;
@@ -103,20 +195,58 @@ class AI
 			return bestValue;
 		}
 
+		
+		//return a estimated value of the given board state. should always be from the perpective of the AI
 		int evaluateNode(Board board, Colour colour) {
-			//Reinfeld values complementary to the Type enum
-			// none, pawn, rook, bishop, knight, king, queen, pawnEnPassant, kingCastle, rookCastle
-			int typeValue[10] = { 0, 1, 5, 3, 3, 50, 9, 1, 50, 5 };
 
 			int total = 0;
 			for (int numberCoord = 2; numberCoord < 10; numberCoord++) {
 				for (int letterCoord = 2; letterCoord < 10; letterCoord++) {
+
+					//only calculate if the square is occupied
 					if (board.GetSquare(numberCoord, letterCoord).type != none) {
+						//get the type value of the piece
 						int value = typeValue[board.GetSquare(numberCoord, letterCoord).type];
-						total += (board.GetSquare(numberCoord, letterCoord).colour == colour) ? value : -value;
+
+						//if the piece is black get the opposite side of the position array vertically
+						int arrayNumberCoord = (board.GetSquare(numberCoord, letterCoord).colour == white) ? numberCoord : 7 - numberCoord;
+
+						//get the positional value of the piece
+						switch (board.GetSquare(numberCoord, letterCoord).type)
+						{
+						case pawnEnPassant:
+						case pawn:
+							value += positionalPawnArray[arrayNumberCoord - 2][letterCoord - 2];
+							break;
+						case knight:
+							value += positionalKnightArray[arrayNumberCoord - 2][letterCoord - 2];
+							break;
+						case bishop:
+							value += positionalBishopArray[arrayNumberCoord - 2][letterCoord - 2];
+							break;
+						case rookCastle:
+						case rook:
+							value += positionalRookArray[arrayNumberCoord - 2][letterCoord - 2];
+							break;
+						case queen:
+							value += positionalQueenArray[arrayNumberCoord - 2][letterCoord - 2];
+							break;
+						case kingCastle:
+						case king:
+							value += positionalKingArray[arrayNumberCoord - 2][letterCoord - 2];
+							break;
+						default:
+							break;
+						}
+
+						//invert the value if the colour is the opponent
+						value = (board.GetSquare(numberCoord, letterCoord).colour == colour) ? value : -value;
+
+						total += value;
 					}
 				}
 			}
+
 			return total;
 		}
 };

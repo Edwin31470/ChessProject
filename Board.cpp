@@ -39,14 +39,4 @@ class Board
 		void ClearSquare(int number, int letter) {
 			pieceBoard[number][letter].Clear();
 		}
-
-		//used to copy the state of one board to this board
-		void Equals(Board& boardToCopy)
-		{
-			for (int numberCoord = 0; numberCoord < 12; numberCoord++) {
-				for (int letterCoord = 0; letterCoord < 12; letterCoord++) {
-					pieceBoard[numberCoord][letterCoord] = boardToCopy.GetSquare(numberCoord, letterCoord);
-				}
-			}
-		}
 };
