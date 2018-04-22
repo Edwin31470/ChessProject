@@ -6,6 +6,8 @@
 
 using namespace std;
 
+
+
 class GameHandler {
 
 	public:
@@ -14,7 +16,7 @@ class GameHandler {
 		AI ai;
 
 		Board realBoard;
-		Colour currentTurn = Colour::white;
+		Colour currentTurn = Colour::black;
 
 		//bool humanCheck = false;
 		//bool aiCheck = false;
@@ -25,13 +27,14 @@ class GameHandler {
 		bool aiHasKing = true;
 
 		GameHandler() {	
-			boardHandler.setupNormalBoard(realBoard);
+			//boardHandler.setupNormalBoard(realBoard);
 			//boardHandler.setupTestBoard(realBoard);
+			boardHandler.setupBoardNoPawns(realBoard);
 			boardHandler.printBoard(realBoard);
 
 			//while both kings are in play, play the game
-			//treu is a testing flag to not end the game when using the test board. hopefully I have removed it
-			while (humanHasKing && aiHasKing || true)
+			//true is a testing flag to not end the game when using the test board. hopefully I have removed it, if I forget remove it
+			while (humanHasKing && aiHasKing || false)
 			{
 				if (currentTurn == white)
 				{
@@ -45,7 +48,7 @@ class GameHandler {
 				}
 				else if (currentTurn == black)
 				{
-					cout << "Calculating AI move" << endl;
+					cout << "Calculating AI move" << endl << endl;
 					aiMove(6); // int is depth to search. must be an even number to evaluate own moves last
 					boardHandler.printBoard(realBoard);
 					humanHasKing = checkKing(white, realBoard);

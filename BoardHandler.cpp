@@ -104,6 +104,47 @@ public:
 
 		board.SetTypeOfPiece(4, 3, Type::pawn);
 		board.SetColourOfPiece(4, 3, Colour::white);
+	}
 
+	void setupBoardNoPawns(Board& board) {
+		for (int i = 0; i < 12; ++i) {
+			for (int j = 0; j < 12; ++j) {
+
+				//set white
+				if (i > 1 && i < 3) {
+					board.SetColourOfPiece(i, j, Colour::white);
+				}
+				//set black
+				else if (i > 8 && i < 10) {
+					board.SetColourOfPiece(i, j, Colour::black);
+				}
+
+				//set type
+				if (i == 2 || i == 9) { // iterate across the non-pawn piece rows
+					if (j == 2 || j == 9) {
+						board.SetTypeOfPiece(i, j, Type::rook); //starting rooks can castle
+					}
+					else if (j == 3 || j == 8) {
+						board.SetTypeOfPiece(i, j, Type::knight);
+					}
+					else if (j == 4 || j == 7) {
+						board.SetTypeOfPiece(i, j, Type::bishop);
+					}
+					else if (j == 5) {
+						board.SetTypeOfPiece(i, j, Type::queen);
+					}
+					else if (j == 6) {
+						board.SetTypeOfPiece(i, j, Type::king); // starting kings as castle
+					}
+				}
+
+				//pad the outside with out of bounds
+				if (i < 2 || i > 9 || j < 2 || j > 9)
+				{
+					board.SetTypeOfPiece(i, j, Type::outOfBoard);
+					board.SetColourOfPiece(i, j, Colour::noColour);
+				}
+			}
+		}
 	}
 };

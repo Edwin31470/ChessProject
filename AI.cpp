@@ -4,6 +4,8 @@
 #include <stdlib.h>;
 #include <random>;
 #include <algorithm>;
+#include <time.h>;
+#include <chrono>;
 
 #include "MoveHandler.cpp";
 
@@ -12,6 +14,10 @@ using namespace std;
 class AI
 {
 	MoveHandler moveHandler;
+
+	//variables for testing
+	int numberOfNodesScanned = 0;
+	int numberOfCutoffs = 0;
 
 	public:
 		AI() {
@@ -29,18 +35,23 @@ class AI
 
 		void AIMove(Colour colour, Board& realBoard, int depth) {
 
+			clock_t timeOfStart = clock();
 			Move bestMove = negaMaxInitial(realBoard, depth, -1000, 1000, colour);
+			clock_t timeOfEnd = clock();
+			
 			moveHandler.movePiece(bestMove, colour, realBoard);
 
 			cout << "AI move: " << realBoard.GetSquare(bestMove.newLet, bestMove.newNum).type << " to " << bestMove.newLet << bestMove.newNum << endl;
+			cout << "Time Taken: " << (timeOfEnd - timeOfStart) / (double) CLOCKS_PER_SEC << " seconds" << endl;
+			cout << "Number of nodes scanned: " << numberOfNodesScanned << endl;
+			cout << "Number of cutoffs made: " << numberOfCutoffs << endl;
 		}
 
-		//h/ttps://chessprogramming.wikispaces.com/Negamax
-
-		//initial call of negaMax. will return the actual move of the best predicted move
+		//initial call of negaMax. will return the first move of the best predicted move path
 		Move negaMaxInitial(Board node, int depth, int alpha, int beta, Colour colour)
 		{
 			vector<Move> childNodes = moveHandler.validMoves(colour, node);
+			numberOfNodesScanned += childNodes.size();
 			//order nodes
 
 			Move bestMove(0,0,0,0);
@@ -68,9 +79,11 @@ class AI
 			if (depth == 0) // node is a terminal node
 			{
 				int nodeScore = evaluateNode(node, colour); //should be a quiescence search
+				numberOfNodesScanned += 1;
 				return nodeScore;
 			}
 			vector<Move> childNodes = moveHandler.validMoves(colour, node);
+			numberOfNodesScanned += childNodes.size();
 			//order nodes
 
 			int bestValue = -1000;
@@ -83,6 +96,7 @@ class AI
 				bestValue = max(bestValue, value);
 				alpha = max(alpha, value);
 				if (alpha >= beta) {
+					numberOfCutoffs += 1;
 					break;
 				}
 			}
@@ -92,7 +106,7 @@ class AI
 		int evaluateNode(Board board, Colour colour) {
 			//Reinfeld values complementary to the Type enum
 			// none, pawn, rook, bishop, knight, king, queen, pawnEnPassant, kingCastle, rookCastle
-			int typeValue[10] = { 0, 1, 5, 3, 3, 200, 9, 1, 200, 5 };
+			int typeValue[10] = { 0, 1, 5, 3, 3, 50, 9, 1, 50, 5 };
 
 			int total = 0;
 			for (int numberCoord = 2; numberCoord < 10; numberCoord++) {
