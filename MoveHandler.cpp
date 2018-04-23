@@ -11,6 +11,7 @@ class Move { // information for an actual move
 		int oldLet;
 		int newNum;
 		int newLet;
+		bool pieceTaken = false;
 
 		Move()
 		{
@@ -41,25 +42,27 @@ class MoveHandler {
 		//assumes move is already valid
 		void movePiece(Move& move, Colour currentTurn, Board& board) {
 
-			//clear en passant pawns on en passant moves
+			//take en passant pawns on en passant moves
 			if (board.GetSquare(move.oldNum,move.oldLet).type == pawn && board.GetSquare(move.oldNum, move.newNum).type == none) {
-				if (currentTurn == white && board.GetSquare(move.newNum - 1, move.newLet).type == pawnEnPassant)
+				if (currentTurn == white && board.GetSquare(move.newNum - 1, move.newLet).type == pawnEnPassant) {
 					board.ClearSquare(move.newNum - 1, move.newLet);
-				if (currentTurn == black && board.GetSquare(move.newNum + 1, move.newLet).type == pawnEnPassant)
+				}
+				if (currentTurn == black && board.GetSquare(move.newNum + 1, move.newLet).type == pawnEnPassant) {
 					board.ClearSquare(move.newNum + 1, move.newLet);
+				}
 			}
 
 			//clear all pawns of en passant flags
 			for (int numberCoord = 2; numberCoord < 10; numberCoord++) {
 				for (int letterCoord = 2; letterCoord < 10; letterCoord++) {
 					if (board.GetSquare(numberCoord, letterCoord).type == pawnEnPassant)
-						board.SetSquare(numberCoord, letterCoord, Piece(pawn, board.GetSquare(numberCoord, letterCoord).colour));
+						board.SetTypeOfPiece(numberCoord, letterCoord, pawn);
 				}
 			}
 
 			//set pawns that will move two squares to en passant potential
 			if (board.GetSquare(move.oldNum, move.oldLet).type == pawn && abs(move.oldNum - move.newNum) == 2) {
-				board.SetSquare(move.oldNum, move.oldLet, Piece(pawnEnPassant, currentTurn));
+				board.SetTypeOfPiece(move.oldNum, move.oldNum, pawnEnPassant);
 			}
 
 			//generic move
@@ -107,6 +110,13 @@ class MoveHandler {
 							if (board.GetSquare(numberCoord + pawnDirection, letterCoord + 1).colour == opponentColour)
 								moves.push_back(Move(numberCoord, letterCoord, numberCoord + pawnDirection, letterCoord + 1));
 							if (board.GetSquare(numberCoord + pawnDirection, letterCoord - 1).colour == opponentColour)
+								moves.push_back(Move(numberCoord, letterCoord, numberCoord + pawnDirection, letterCoord - 1));
+							//check for en passant taking
+							if (board.GetSquare(numberCoord, letterCoord + 1).colour == opponentColour
+								&& board.GetSquare(numberCoord, letterCoord + 1).type == pawnEnPassant)
+								moves.push_back(Move(numberCoord, letterCoord, numberCoord + pawnDirection, letterCoord + 1));
+							if (board.GetSquare(numberCoord, letterCoord - 1).colour == opponentColour
+								&& board.GetSquare(numberCoord, letterCoord - 1).type == pawnEnPassant)
 								moves.push_back(Move(numberCoord, letterCoord, numberCoord + pawnDirection, letterCoord - 1));
 							break;
 						case queen: // queen will fall through rook and bishop to combine moves
@@ -194,7 +204,33 @@ class MoveHandler {
 					}
 				}
 			}
-		
-			return moves;
+
+			//find if a move results in piece taking and if it is add it to the front of the list
+			//this is to attempt to force the algorithm to sort attacking moves first as these are more likely to have a greater impact
+			//will not find moves for en passant but these are rare moves and this only to improve efficiency
+			vector<Move> sortedMoves;
+			for each (Move move in moves)
+			{
+				if (board.GetSquare(move.newNum, move.newLet).type != none) {
+					move.pieceTaken = true;
+					sortedMoves.insert(sortedMoves.begin(), move);
+				}
+				else {
+					sortedMoves.push_back(move);
+				}
+			}
+			return sortedMoves;
+		}
+
+		//to get a null move an own king to own king move is made
+		Move getNullMove(Colour colour, Board& board) {
+
+			for (int numberCoord = 2; numberCoord < 10; numberCoord++) {
+				for (int letterCoord = 2; letterCoord < 10; letterCoord++) {
+					if (board.GetSquare(numberCoord, letterCoord).type == king || board.GetSquare(numberCoord, letterCoord).type == kingCastle) {
+						return Move(numberCoord, letterCoord, numberCoord, letterCoord);
+					}
+				}
+			}
 		}
 };

@@ -33,9 +33,9 @@ public:
 
 				cout << TypeToString[board.GetSquare(i, j).type] << " ";
 			}
-			cout << endl;
+			cout << i - 1 << endl;
 		}
-		cout << endl;
+		cout << "  A  B  C  D  E  F  G  H" << endl << endl;
 	}
 
 	void setupNormalBoard(Board& board) {
@@ -96,14 +96,14 @@ public:
 		}
 
 		//e5
-		board.SetTypeOfPiece(6, 6, Type::rook);
-		board.SetColourOfPiece(6, 6, Colour::black);
+		//board.SetTypeOfPiece(6, 6, Type::rook);
+		//board.SetColourOfPiece(6, 6, Colour::black);
 
-		board.SetTypeOfPiece(6, 4, Type::pawn);
-		board.SetColourOfPiece(6, 4, Colour::white);
+		board.SetTypeOfPiece(5, 4, Type::pawn);
+		board.SetColourOfPiece(5, 4, Colour::black);
 
-		board.SetTypeOfPiece(4, 3, Type::pawn);
-		board.SetColourOfPiece(4, 3, Colour::white);
+		board.SetTypeOfPiece(3, 3, Type::pawn);
+		board.SetColourOfPiece(3, 3, Colour::white);
 	}
 
 	void setupBoardNoPawns(Board& board) {

@@ -16,7 +16,7 @@ class GameHandler {
 		AI ai;
 
 		Board realBoard;
-		Colour currentTurn = Colour::black;
+		Colour currentTurn = black;
 
 		//bool humanCheck = false;
 		//bool aiCheck = false;
@@ -33,7 +33,7 @@ class GameHandler {
 			boardHandler.printBoard(realBoard);
 
 			//while both kings are in play, play the game
-			//true is a testing flag to not end the game when using the test board. hopefully I have removed it, if I forget remove it
+			//bool is a testing flag to not end the game when using the test board. hopefully I have removed it, if I forget then remove it
 			while (humanHasKing && aiHasKing || false)
 			{
 				if (currentTurn == white)

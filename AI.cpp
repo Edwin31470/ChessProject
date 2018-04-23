@@ -15,6 +15,8 @@ class AI
 {
 	MoveHandler moveHandler;
 
+	int maxDepth;
+
 	//variables for testing
 	int numberOfNodesScanned = 0;
 	int numberOfCutoffs = 0;
@@ -116,15 +118,6 @@ class AI
 
 		}
 
-		void randomMove(Colour colour, Board& realBoard) {
-			vector<Move> validMoves = moveHandler.validMoves(colour, realBoard);
-			int random = (rand() % validMoves.size());
-			Move move = validMoves[random];
-			moveHandler.movePiece(move, colour, realBoard);
-			
-			cout << "AI move: " << realBoard.GetSquare(move.newLet, move.newNum).type << " to " << move.newLet << move.newNum << endl;
-		}
-
 		void AIMove(Colour colour, Board& realBoard, int depth) {
 
 			clock_t timeOfStart = clock();
@@ -140,62 +133,101 @@ class AI
 		}
 
 		//initial call of negaMax. will return the first move of the best predicted move path
-		Move negaMaxInitial(Board node, int depth, int alpha, int beta, Colour colour)
+		Move negaMaxInitial(Board startNode, int depth, int alpha, int beta, Colour colour)
 		{
-			vector<Move> childNodes = moveHandler.validMoves(colour, node);
-			numberOfNodesScanned += childNodes.size();
-			//order nodes
+			vector<Move> childNodes = moveHandler.validMoves(colour, startNode);
 
-			Move bestMove(0,0,0,0);
+			//if all best values are the same thus no moves are best do the first move in the vector
+			Move bestMove = childNodes[0];
+
 			int bestValue = -1000000; // arbitarily high value of 1 million is used
 			for each (Move move in childNodes)
 			{
-				Board board = node;
+				Board board = startNode;
 				moveHandler.movePiece(move, colour, board);
-				int value = negaMax(board, depth - 1, -beta, -alpha, (colour == white) ? black : white);
+				int value = negaMax(board, depth - 1, -beta, -alpha, (colour == white) ? black : white, true);
 				if (value > bestValue)
 					bestMove = move;
 				alpha = max(alpha, value);
 				bestValue = max(bestValue, value);
+				numberOfNodesScanned += 1;
 			}
-
-			//if all best values are the same thus no moves are best do the first move in the vector
-			if (bestMove.newLet + bestMove.newNum + bestMove.oldLet + bestMove.oldNum == 0)
-				bestMove = childNodes[0];
 
 			return bestMove;
 		}
 
-		int negaMax(Board node, int depth, int alpha, int beta, Colour colour)
+		int negaMax(Board node, int depth, int alpha, int beta, Colour colour, bool nullMove)
 		{
+			int bestValue = -1000000; // arbitarily high value of 1 million is used
+
 			if (depth == 0) // node is a terminal node
 			{
-				int nodeScore = evaluateNode(node, colour); //should be a quiescence search
 				numberOfNodesScanned += 1;
-				return nodeScore;
+				return evaluateNode(node, colour); //should be a quiescence search
+			}
+			if (nullMove) { //if doing a null move
+				bestValue = negaMax(node, depth - 1, -beta, -alpha, (colour == white) ? black : white, false);
+
+				if (bestValue >= beta) {
+					numberOfCutoffs += 1;
+					return beta;
+				}
+				nullMove = false;
+			}
+			else if (depth < 3) {
+				nullMove = true;
 			}
 			vector<Move> childNodes = moveHandler.validMoves(colour, node);
-			numberOfNodesScanned += childNodes.size();
-			//order nodes
 
-			int bestValue = -1000000; // arbitarily high value of 1 million is used
 			for each (Move move in childNodes)
 			{
 				Board board = node;
 				moveHandler.movePiece(move, colour, board);
-				int value = negaMax(board, depth - 1, -beta, -alpha, (colour == white) ? black : white);
-				//cout << "Node evaluation of: " << value << " at depth " << depth << endl;
+				int value = negaMax(board, depth - 1, -beta, -alpha, (colour == white) ? black : white, nullMove);
 				bestValue = max(bestValue, value);
 				alpha = max(alpha, value);
+
 				if (alpha >= beta) {
 					numberOfCutoffs += 1;
 					break;
+				}
+				else {
+					numberOfNodesScanned += 1;
 				}
 			}
 			return bestValue;
 		}
 
-		
+		int negaMaxNoNull(Board node, int depth, int alpha, int beta, Colour colour)
+		{
+			int bestValue = -1000000; // arbitarily high value of 1 million is used
+
+			if (depth == 0) // node is a terminal node
+			{
+				numberOfNodesScanned += 1;
+				return evaluateNode(node, colour); //should be a quiescence search
+			}
+			vector<Move> childNodes = moveHandler.validMoves(colour, node);
+
+			for each (Move move in childNodes)
+			{
+				Board board = node;
+				moveHandler.movePiece(move, colour, board);
+				int value = negaMaxNoNull(board, depth - 1, -beta, -alpha, (colour == white) ? black : white);
+				bestValue = max(bestValue, value);
+				alpha = max(alpha, value);
+
+				if (alpha >= beta) {
+					numberOfCutoffs += 1;
+					break;
+				}
+				else {
+					numberOfNodesScanned += 1;
+				}
+			}
+			return bestValue;
+		}
+
 		//return a estimated value of the given board state. should always be from the perpective of the AI
 		int evaluateNode(Board board, Colour colour) {
 
