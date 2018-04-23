@@ -16,7 +16,7 @@ class GameHandler {
 		AI ai;
 
 		Board realBoard;
-		Colour currentTurn = black;
+		Colour currentTurn = white;
 
 		//bool humanCheck = false;
 		//bool aiCheck = false;
@@ -29,7 +29,8 @@ class GameHandler {
 		GameHandler() {	
 			//boardHandler.setupNormalBoard(realBoard);
 			//boardHandler.setupTestBoard(realBoard);
-			boardHandler.setupBoardNoPawns(realBoard);
+			//boardHandler.setupBoardNoPawns(realBoard);
+			boardHandler.setupCastlingBoard(realBoard);
 			boardHandler.printBoard(realBoard);
 
 			//while both kings are in play, play the game
@@ -56,11 +57,6 @@ class GameHandler {
 				currentTurn = (currentTurn == white) ? black : white;
 			}
 
-			
-			if (true)
-			{
-
-			}
 			if (!aiHasKing) {
 				cout << endl << "Congratulations, you win!" << endl;
 			}

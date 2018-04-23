@@ -26,16 +26,6 @@ class Move { // information for an actual move
 		}
 };
 
-class MoveHistoryItem {
-
-	Move move;
-	Piece piece;
-
-	MoveHistoryItem(Move _move) {
-		move = _move;
-	}
-};
-
 class MoveHandler {
 
 	public:
@@ -60,10 +50,29 @@ class MoveHandler {
 				}
 			}
 
+			//move rooks on en castling moves
+			if (board.GetSquare(move.oldNum, move.oldLet).type == kingCastle && (move.newLet == 4 || move.newLet == 8)) {
+				Move rookMove;
+				if (move.newLet == 4) { //queenside
+					rookMove = Move(move.oldNum, 2, move.newNum, 4);
+				} else if (move.newLet == 8) { //queenside
+					rookMove = Move(move.oldNum, 9, move.newNum, 7);
+				}
+				board.SetTypeOfPiece(rookMove.oldNum, rookMove.oldLet, rook); //clear moving rook of castling potential
+				// do rook move
+				board.SetSquare(rookMove.newNum, rookMove.newLet, board.GetSquare(rookMove.oldNum, rookMove.oldLet));
+				board.ClearSquare(rookMove.oldNum, rookMove.oldLet);
+			}
+
 			//set pawns that will move two squares to en passant potential
 			if (board.GetSquare(move.oldNum, move.oldLet).type == pawn && abs(move.oldNum - move.newNum) == 2) {
 				board.SetTypeOfPiece(move.oldNum, move.oldNum, pawnEnPassant);
 			}
+			//clear moving kings and rooks of castling
+			else if (board.GetSquare(move.oldNum, move.oldLet).type == kingCastle)
+				board.SetTypeOfPiece(move.oldNum, move.oldLet, king);
+			else if (board.GetSquare(move.oldNum, move.oldLet).type == rookCastle)
+				board.SetTypeOfPiece(move.oldNum, move.oldLet, rook);
 
 			//generic move
 			board.SetSquare(move.newNum, move.newLet, board.GetSquare(move.oldNum, move.oldLet));
@@ -185,6 +194,21 @@ class MoveHandler {
 							}
 							break;
 						case kingCastle: //king with castle has same moves as king but with extra moves
+							//queenside castling
+							if (board.GetSquare(numberCoord,2).type == rookCastle && //rook has not moved
+								board.GetSquare(numberCoord,3).type == none && //all spaces between rook and king are empty
+								board.GetSquare(numberCoord,4).type == none &&
+								board.GetSquare(numberCoord,5).type == none)
+							{
+								moves.push_back(Move(numberCoord, letterCoord, numberCoord, 4));
+							}
+							//kingside castling
+							if (board.GetSquare(numberCoord, 9).type == rookCastle && //rook has not moved
+								board.GetSquare(numberCoord, 8).type == none && //all spaces between rook and king are empty
+								board.GetSquare(numberCoord, 7).type == none)
+							{
+								moves.push_back(Move(numberCoord, letterCoord, numberCoord, 8));
+							}
 						case king:
 							//iterate over all adjacent spaces. 0,0 is unnecessarily evaluated but will not be added as king cannot take its own colour
 							for (int directionV : { -1, 0, 1}) {

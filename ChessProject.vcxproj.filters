@@ -30,9 +30,6 @@
     <ClCompile Include="BitBoard.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="HistoryItem.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="MoveHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
