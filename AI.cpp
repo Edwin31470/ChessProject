@@ -101,11 +101,41 @@ class AI
 			{ 20, 30, 10, 0, 0, 10, 30, 20 },
 		};
 
+		//converts letter to number for printing moves to player
+		string numberToLet(int number)
+		{
+			if (number == 2) {
+				return "a";
+			}
+			else if (number == 3) {
+				return "b";
+			}
+			else if (number == 4) {
+				return "c";
+			}
+			else if (number == 5) {
+				return "d";
+			}
+			else if (number == 6) {
+				return "e";
+			}
+			else if (number == 7) {
+				return "f";
+			}
+			else if (number == 8) {
+				return "g";
+			}
+			else if (number == 9) {
+				return "h";
+			}
+		}
 
 	public:
 		AI() {
 
 		}
+
+		
 
 		void AIMove(Colour colour, Board& realBoard, int depth) {
 
@@ -116,14 +146,14 @@ class AI
 			
 			moveHandler.movePiece(bestMove, colour, realBoard);
 
-			cout << "AI move: " << realBoard.GetSquare(bestMove.newLet, bestMove.newNum).type << " to " << bestMove.newLet << bestMove.newNum << endl;
+			cout << "AI move: " << realBoard.GetSquare(bestMove.newLet, bestMove.newNum).type << " " << numberToLet(bestMove.oldLet) << bestMove.oldNum << " to " << numberToLet(bestMove.newLet) << bestMove.newNum << endl;
 			cout << "Time Taken: " << (timeOfEnd - timeOfStart) / (double) CLOCKS_PER_SEC << " seconds" << endl;
 			cout << "Number of nodes scanned: " << numberOfNodesScanned << endl;
 			cout << "Number of cutoffs made: " << numberOfCutoffs << endl;
 		}
 
 
-		//ALPHA BETA
+		//MINIMAX
 		//initial call of negaMax. will return the first move of the best predicted move path
 		Move negaMaxInitial(Board startNode, int depth, Colour colour)
 		{
@@ -170,9 +200,6 @@ class AI
 		}
 
 
-
-
-
 		//ALPHA BETA
 		//initial call of negaMax. will return the first move of the best predicted move path
 		Move negaMaxAlphaBetaInitial(Board startNode, int depth, int alpha, int beta, Colour colour)
@@ -208,7 +235,7 @@ class AI
 				numberOfNodesScanned += 1;
 				return evaluateNode(node, colour); //should be a quiescence search
 			}
-			else if (depth == 1) { // if depth is 1 (so next node will be evaluation) only get quescient moves
+			else if (depth == 2) { // make sure last two moves of each colour and quiescient
 				childNodes = moveHandler.quietMoves(colour, node);
 			}
 			else {
@@ -307,7 +334,6 @@ class AI
 			int total = 0;
 			for (int numberCoord = 2; numberCoord < 10; numberCoord++) {
 				for (int letterCoord = 2; letterCoord < 10; letterCoord++) {
-
 					//only calculate if the square is occupied
 					if (board.GetSquare(numberCoord, letterCoord).type != none) {
 						//get the type value of the piece
@@ -352,6 +378,7 @@ class AI
 				}
 			}
 
-			return total;
+			int random = rand() % 21 + (-10); // random noise from -10 to +10 so that very similar moves are randomly chosen to stop complete predictability
+			return (total + random);
 		}
 };

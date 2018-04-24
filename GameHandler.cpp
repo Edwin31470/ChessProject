@@ -23,6 +23,8 @@ class GameHandler {
 		//bool humanCheckMate = false;
 		//bool aiCheckMate = false;
 
+		int movesMade = 0;
+
 		bool humanHasKing = true;
 		bool aiHasKing = true;
 
@@ -49,7 +51,7 @@ class GameHandler {
 					aiHasKing = checkKing(black, realBoard);*/
 
 					cout << "Calculating AI move" << endl << endl;
-					aiMove(6); // int is depth to search. must be an even number to evaluate own moves last
+					aiMove(7); // int is depth to search. must be an even number to evaluate own moves last
 					boardHandler.printBoard(realBoard);
 					aiHasKing = checkKing(black, realBoard);
 					
@@ -57,11 +59,13 @@ class GameHandler {
 				else if (currentTurn == black)
 				{
 					cout << "Calculating AI move" << endl << endl;
-					aiMove(6); // int is depth to search. must be an even number to evaluate own moves last
+					aiMove(7); // int is depth to search. must be an even number to evaluate own moves last
 					boardHandler.printBoard(realBoard);
 					humanHasKing = checkKing(white, realBoard);
 				}
 				currentTurn = (currentTurn == white) ? black : white;
+				movesMade++;
+				cout << "Total moves made: " << movesMade << endl;
 			}
 
 			if (!aiHasKing) {

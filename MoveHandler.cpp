@@ -107,6 +107,7 @@ class MoveHandler {
 					//only evaluate squares that contain the player's piece
 					if (board.GetSquare(numberCoord, letterCoord).colour == playerColour)
 					{
+						Piece pieceToMove = board.GetSquare(numberCoord + pawnDirection, letterCoord);
 						switch (board.GetSquare(numberCoord, letterCoord).type)
 						{
 						case pawnEnPassant: //pawn with en passant potential has the same moves as pawn
@@ -126,11 +127,11 @@ class MoveHandler {
 							if (board.GetSquare(numberCoord + pawnDirection, letterCoord - 1).colour == opponentColour)
 								moves.insert(moves.begin(), Move(numberCoord, letterCoord, numberCoord + pawnDirection, letterCoord - 1));
 							//check for en passant taking
-							if (board.GetSquare(numberCoord, letterCoord + 1).colour == opponentColour
-								&& board.GetSquare(numberCoord, letterCoord + 1).type == pawnEnPassant)
+							if (board.GetSquare(numberCoord, letterCoord + 1).type == pawnEnPassant
+								&& board.GetSquare(numberCoord, letterCoord + 1).colour == opponentColour)
 								moves.insert(moves.begin(), Move(numberCoord, letterCoord, numberCoord + pawnDirection, letterCoord + 1));
-							if (board.GetSquare(numberCoord, letterCoord - 1).colour == opponentColour
-								&& board.GetSquare(numberCoord, letterCoord - 1).type == pawnEnPassant)
+							if (board.GetSquare(numberCoord, letterCoord - 1).type == pawnEnPassant
+								&& board.GetSquare(numberCoord, letterCoord - 1).colour == opponentColour)
 								moves.insert(moves.begin(), Move(numberCoord, letterCoord, numberCoord + pawnDirection, letterCoord - 1));
 							break;
 						case queen: // queen will fall through rook and bishop to combine moves
@@ -205,7 +206,7 @@ class MoveHandler {
 									moves.insert(moves.begin(), (Move(numberCoord, letterCoord, V, H)));
 							}
 							break;
-						case kingCastle: //king with castle has same moves as king but with extra moves
+						case kingCastle: 
 										 //queenside castling
 							if (board.GetSquare(numberCoord, 2).type == rookCastle && //rook has not moved
 								board.GetSquare(numberCoord, 3).type == none && //all spaces between rook and king are empty
@@ -220,7 +221,7 @@ class MoveHandler {
 								board.GetSquare(numberCoord, 7).type == none)
 							{
 								moves.insert(moves.begin(), (Move(numberCoord, letterCoord, numberCoord, 8)));
-							}
+							} //king with castle has same moves as king but with extra moves so we don't break
 						case king:
 							//iterate over all adjacent spaces. 0,0 is unnecessarily evaluated but will not be added as king cannot take its own colour
 							for (int directionV : { -1, 0, 1}) {
