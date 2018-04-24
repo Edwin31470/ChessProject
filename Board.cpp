@@ -36,6 +36,16 @@ class Board
 			pieceBoard[number][letter].colour = colour;
 		}
 
+		Type GetTypeOfPiece(int number, int letter)
+		{
+			return pieceBoard[number][letter].type;
+		}
+
+		Colour GetColourOfPiece(int number, int letter, Colour colour)
+		{
+			return pieceBoard[number][letter].colour;
+		}
+
 		void ClearSquare(int number, int letter) {
 			pieceBoard[number][letter].Clear();
 		}

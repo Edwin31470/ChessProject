@@ -23,8 +23,6 @@ enum Colour {
 	noColour
 };
 
-
-
 class Piece {
 
 	public:

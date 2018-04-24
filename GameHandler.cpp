@@ -27,23 +27,30 @@ class GameHandler {
 		bool aiHasKing = true;
 
 		GameHandler() {	
-			//boardHandler.setupNormalBoard(realBoard);
+			boardHandler.setupNormalBoard(realBoard);
 			//boardHandler.setupTestBoard(realBoard);
 			//boardHandler.setupBoardNoPawns(realBoard);
-			boardHandler.setupCastlingBoard(realBoard);
+			//boardHandler.setupCastlingBoard(realBoard);
+			cout << "Board set up" << endl << endl;
 			boardHandler.printBoard(realBoard);
 
 			//while both kings are in play, play the game
 			//bool is a testing flag to not end the game when using the test board. hopefully I have removed it, if I forget then remove it
 			while (humanHasKing && aiHasKing || false)
 			{
+				cout << ((currentTurn == white) ? "White" : "Black") << " Turn" << endl;
 				if (currentTurn == white)
 				{
-					int valid = 0;
+					/*int valid = 0;
 					while (!valid)
 					{
 						valid = humanMove();
 					}
+					aiHasKing = checkKing(black, realBoard);*/
+
+					cout << "Calculating AI move" << endl << endl;
+					aiMove(6); // int is depth to search. must be an even number to evaluate own moves last
+					boardHandler.printBoard(realBoard);
 					aiHasKing = checkKing(black, realBoard);
 					
 				}
@@ -63,8 +70,9 @@ class GameHandler {
 			else if (!humanHasKing) {
 				cout << endl << "Unfortunately, the ai has beaten you!" << endl;
 			}
-			cout << endl << "Thank you for playing!" << endl;
-			cin;
+			string anyKey;
+			cout << endl << "Thank you for playing! Press any key to exit" << endl;
+			cin >> anyKey;
 		}
 
 		//return of 1 means a valid move has been performed. 0 is an invalid move

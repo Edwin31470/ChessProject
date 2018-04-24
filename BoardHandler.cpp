@@ -144,11 +144,11 @@ public:
 		//board.SetTypeOfPiece(6, 6, Type::rook);
 		//board.SetColourOfPiece(6, 6, Colour::black);
 
-		board.SetTypeOfPiece(5, 4, Type::pawn);
-		board.SetColourOfPiece(5, 4, Colour::black);
+		board.SetTypeOfPiece(6, 4, Type::pawnEnPassant);
+		board.SetColourOfPiece(6, 4, Colour::black);
 
-		board.SetTypeOfPiece(3, 3, Type::pawn);
-		board.SetColourOfPiece(3, 3, Colour::white);
+		board.SetTypeOfPiece(6, 3, Type::pawn);
+		board.SetColourOfPiece(6, 3, Colour::white);
 	}
 
 	void setupBoardNoPawns(Board& board) {
