@@ -15,7 +15,7 @@ class AI
 {
 	private:
 		MoveHandler moveHandler;
-
+		Colour maximisingPlayer;
 		int maxDepth;
 
 		//variables for testing
@@ -135,13 +135,11 @@ class AI
 
 		}
 
-		
-
 		void AIMove(Colour colour, Board& realBoard, int depth) {
+			maximisingPlayer = colour;
 
 			clock_t timeOfStart = clock();
-			//Move bestMove = negaMaxInitial(realBoard, depth, colour);
-			Move bestMove = negaMaxAlphaBetaInitial(realBoard, depth, INT_MIN, INT_MAX, colour); // arbitarily high value of 1 million is used as initial alpha and beta
+			Move bestMove = negaMaxAlphaBetaInitial(realBoard, depth, INT_MIN, INT_MAX, colour); // maximum and minimum values possible used as initial alpha and beta
 			clock_t timeOfEnd = clock();
 			
 			moveHandler.movePiece(bestMove, colour, realBoard);
@@ -152,8 +150,7 @@ class AI
 			cout << "Number of cutoffs made: " << numberOfCutoffs << endl;
 		}
 
-
-		//MINIMAX
+		//NEGAMAX
 		//initial call of negaMax. will return the first move of the best predicted move path
 		Move negaMaxInitial(Board startNode, int depth, Colour colour)
 		{
@@ -162,7 +159,7 @@ class AI
 			//if all best values are the same thus no moves are best do the first move in the vector
 			Move bestMove = childNodes[0];
 
-			int bestValue = INT_MIN; // arbitarily high value of 1 million is used
+			int bestValue = INT_MIN;
 			for each (Move move in childNodes)
 			{
 				Board board = startNode;
@@ -171,20 +168,26 @@ class AI
 				if (value > bestValue)
 					bestMove = move;
 				bestValue = max(bestValue, value);
-				numberOfNodesScanned += 1;
+				numberOfNodesScanned++;
 			}
-
 			return bestMove;
 		}
 
 		int negaMax(Board node, int depth, Colour colour)
 		{
+			vector<Move> childNodes = moveHandler.validMoves(colour, node); // get all valid moves from this node
+
 			if (depth == 0) // if node is a terminal node
 			{
 				numberOfNodesScanned++;
-				return evaluateNode(node, colour); // get the material value of the node
+				return evaluateNode(node); // get the material value of the node
 			}
-			vector<Move> childNodes = moveHandler.validMoves(colour, node); // get all valid moves from this node
+			else if ((depth == 2 || depth == 1) && maximisingPlayer == colour) { // make sure last moves the maxiser makes are quiet to avoid horizon
+				childNodes = moveHandler.quietMoves(colour, node);
+			}
+			else {
+				childNodes = moveHandler.validMoves(colour, node);
+			}
 
 			int bestValue = INT_MIN; // best value is negative infinity
 			for each (Move move in childNodes)
@@ -208,7 +211,7 @@ class AI
 			//if all best values are the same thus no moves are best do the first move in the vector
 			Move bestMove = childNodes[0];
 
-			int bestValue = INT_MIN; // arbitarily high value of 1 million is used
+			int bestValue = INT_MIN;
 			for each (Move move in childNodes)
 			{
 				Board board = startNode;
@@ -218,9 +221,8 @@ class AI
 					bestMove = move;
 				alpha = max(alpha, value);
 				bestValue = max(bestValue, value);
-				numberOfNodesScanned += 1;
+				numberOfNodesScanned++;
 			}
-
 			return bestMove;
 		}
 
@@ -231,14 +233,14 @@ class AI
 			if (depth == 0) // if node is a terminal node
 			{
 				numberOfNodesScanned++;
-				return evaluateNode(node, colour); // get the material value of the node
+				return evaluateNode(node); // get the material value of the node
 			}
-			//else if (depth == 2) { // make sure last moves of each colour are quiet to avoid horizon
-			//	childNodes = moveHandler.quietMoves(colour, node);
-			//}
-			//else {
+			else if ((depth == 2 || depth == 1) && maximisingPlayer == colour) { // make sure last moves the maxiser makes are quiet to avoid horizon
+				childNodes = moveHandler.quietMoves(colour, node);
+			}
+			else {
 				childNodes = moveHandler.validMoves(colour, node); // if not last two moves get all valid moves
-			//}
+			}
 			
 			int bestValue = INT_MIN; // best value is negative infinity
 			for each (Move move in childNodes)
@@ -270,8 +272,8 @@ class AI
 
 			if (depth == 0) // node is a terminal node
 			{
-				numberOfNodesScanned += 1;
-				return evaluateNode(node, colour); //should be a quiescence search
+				numberOfNodesScanned++;
+				return evaluateNode(node); //should be a quiescence search
 			}
 			if (nullMove) { //if doing a null move
 				bestValue = negaMaxMakeNullMove(node, -beta, -beta + 1, (colour == white) ? black : white);
@@ -329,13 +331,14 @@ class AI
 		}
 
 		//return a estimated value of the given board state. should always be from the perpective of the AI
-		int evaluateNode(Board board, Colour colour) {
+		int evaluateNode(Board board) {
 
 			int total = 0;
 			for (int numberCoord = 2; numberCoord < 10; numberCoord++) {
 				for (int letterCoord = 2; letterCoord < 10; letterCoord++) {
 					//only calculate if the square is occupied
 					if (board.GetSquare(numberCoord, letterCoord).type != none) {
+						
 						//get the type value of the piece
 						int value = typeValue[board.GetSquare(numberCoord, letterCoord).type];
 
@@ -371,7 +374,7 @@ class AI
 						}
 
 						//invert the value if the colour is the opponent
-						value = (board.GetSquare(numberCoord, letterCoord).colour == colour) ? value : -value;
+						value = (board.GetSquare(numberCoord, letterCoord).colour == maximisingPlayer) ? value : -value;
 
 						total += value;
 					}

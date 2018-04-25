@@ -38,8 +38,7 @@ class GameHandler {
 			boardHandler.printBoard(realBoard);
 
 			//while both kings are in play, play the game
-			//bool is a testing flag to not end the game when using the test board. hopefully I have removed it, if I forget then remove it
-			while (humanHasKing && aiHasKing || false)
+			while (humanHasKing && aiHasKing)
 			{
 				cout << ((currentTurn == white) ? "White" : "Black") << " Turn" << endl;
 				if (currentTurn == white)
@@ -50,12 +49,6 @@ class GameHandler {
 						valid = humanMove();
 					}
 					aiHasKing = checkKing(black, realBoard);
-
-					//cout << "Calculating AI move" << endl << endl;
-					//whiteAI.AIMove(currentTurn, realBoard, 7); // int is depth to search. must be an even number to evaluate own moves last
-					//boardHandler.printBoard(realBoard);
-					//aiHasKing = checkKing(black, realBoard);
-					
 				}
 				else if (currentTurn == black)
 				{
