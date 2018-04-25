@@ -107,7 +107,6 @@ class MoveHandler {
 					//only evaluate squares that contain the player's piece
 					if (board.GetSquare(numberCoord, letterCoord).colour == playerColour)
 					{
-						Piece pieceToMove = board.GetSquare(numberCoord + pawnDirection, letterCoord);
 						switch (board.GetSquare(numberCoord, letterCoord).type)
 						{
 						case pawnEnPassant: //pawn with en passant potential has the same moves as pawn

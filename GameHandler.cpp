@@ -13,7 +13,8 @@ class GameHandler {
 	public:
 		MoveHandler moveHandler;
 		BoardHandler boardHandler;
-		AI ai;
+		AI blackAI;
+		AI whiteAI;
 
 		Board realBoard;
 		Colour currentTurn = white;
@@ -43,23 +44,23 @@ class GameHandler {
 				cout << ((currentTurn == white) ? "White" : "Black") << " Turn" << endl;
 				if (currentTurn == white)
 				{
-					/*int valid = 0;
+					int valid = 0;
 					while (!valid)
 					{
 						valid = humanMove();
 					}
-					aiHasKing = checkKing(black, realBoard);*/
-
-					cout << "Calculating AI move" << endl << endl;
-					aiMove(7); // int is depth to search. must be an even number to evaluate own moves last
-					boardHandler.printBoard(realBoard);
 					aiHasKing = checkKing(black, realBoard);
+
+					//cout << "Calculating AI move" << endl << endl;
+					//whiteAI.AIMove(currentTurn, realBoard, 7); // int is depth to search. must be an even number to evaluate own moves last
+					//boardHandler.printBoard(realBoard);
+					//aiHasKing = checkKing(black, realBoard);
 					
 				}
 				else if (currentTurn == black)
 				{
 					cout << "Calculating AI move" << endl << endl;
-					aiMove(7); // int is depth to search. must be an even number to evaluate own moves last
+					blackAI.AIMove(currentTurn, realBoard, 6);  // int is depth to search. must be an even number to evaluate own moves last
 					boardHandler.printBoard(realBoard);
 					humanHasKing = checkKing(white, realBoard);
 				}
@@ -72,7 +73,7 @@ class GameHandler {
 				cout << endl << "Congratulations, you win!" << endl;
 			}
 			else if (!humanHasKing) {
-				cout << endl << "Unfortunately, the ai has beaten you!" << endl;
+				cout << endl << "Unfortunately, the AI has beaten you!" << endl;
 			}
 			string anyKey;
 			cout << endl << "Thank you for playing! Press any key to exit" << endl;
@@ -117,10 +118,6 @@ class GameHandler {
 			}
 			cout << "That move is invalid." << endl;
 			return 0;
-		}
-
-		void aiMove(int depth) {
-			ai.AIMove(currentTurn, realBoard, depth);
 		}
 
 		//converts input letter to a coordinate the program can understand

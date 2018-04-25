@@ -179,24 +179,23 @@ class AI
 
 		int negaMax(Board node, int depth, Colour colour)
 		{
-			int bestValue = INT_MIN; // arbitarily high value of 1000 million is used
-
-			if (depth == 0) // node is a terminal node
+			if (depth == 0) // if node is a terminal node
 			{
-				numberOfNodesScanned += 1;
-				return evaluateNode(node, colour); //should be a quiescence search
+				numberOfNodesScanned++;
+				return evaluateNode(node, colour); // get the material value of the node
 			}
-			vector<Move> childNodes = moveHandler.validMoves(colour, node);
+			vector<Move> childNodes = moveHandler.validMoves(colour, node); // get all valid moves from this node
 
+			int bestValue = INT_MIN; // best value is negative infinity
 			for each (Move move in childNodes)
 			{
-				Board board = node;
-				moveHandler.movePiece(move, colour, board);
-				int value = negaMax(board, depth - 1, (colour == white) ? black : white);
-				bestValue = max(bestValue, value);
-				numberOfNodesScanned += 1;
+				Board board = node; // create the new node
+				moveHandler.movePiece(move, colour, board); // for each move make the move
+				int value = negaMax(board, depth - 1, (colour == white) ? black : white); // using the node perform a recursive search
+				bestValue = max(bestValue, value); // is the new value higher than the current best value
+				numberOfNodesScanned++;
 			}
-			return bestValue;
+			return bestValue; // return the best value for all moves of this node
 		}
 
 
@@ -204,7 +203,7 @@ class AI
 		//initial call of negaMax. will return the first move of the best predicted move path
 		Move negaMaxAlphaBetaInitial(Board startNode, int depth, int alpha, int beta, Colour colour)
 		{
-			vector<Move> childNodes = moveHandler.validMoves(colour, startNode);
+			vector<Move> childNodes = moveHandler.validMoves(colour, startNode); 
 
 			//if all best values are the same thus no moves are best do the first move in the vector
 			Move bestMove = childNodes[0];
@@ -227,36 +226,37 @@ class AI
 
 		int negaMaxAlphaBeta(Board node, int depth, int alpha, int beta, Colour colour)
 		{
-			int bestValue = INT_MIN; // arbitarily high value of 100 million is used
 			vector<Move> childNodes;
 
-			if (depth == 0) // node is a terminal node
+			if (depth == 0) // if node is a terminal node
 			{
-				numberOfNodesScanned += 1;
-				return evaluateNode(node, colour); //should be a quiescence search
+				numberOfNodesScanned++;
+				return evaluateNode(node, colour); // get the material value of the node
 			}
-			else if (depth == 2) { // make sure last two moves of each colour and quiescient
-				childNodes = moveHandler.quietMoves(colour, node);
-			}
-			else {
-				childNodes = moveHandler.validMoves(colour, node);
-			}
+			//else if (depth == 2) { // make sure last moves of each colour are quiet to avoid horizon
+			//	childNodes = moveHandler.quietMoves(colour, node);
+			//}
+			//else {
+				childNodes = moveHandler.validMoves(colour, node); // if not last two moves get all valid moves
+			//}
 			
-
+			int bestValue = INT_MIN; // best value is negative infinity
 			for each (Move move in childNodes)
 			{
-				Board board = node;
-				moveHandler.movePiece(move, colour, board);
-				int value = negaMaxAlphaBeta(board, depth - 1, -beta, -alpha, (colour == white) ? black : white);
-				bestValue = max(bestValue, value);
-				alpha = max(alpha, value);
+				Board board = node; // create the new node
+				moveHandler.movePiece(move, colour, board); // for each move make the move
 
-				if (alpha >= beta) {
-					numberOfCutoffs += 1;
+				//using the node perform a recursive search. in the new search, alpha becomes -beta and beta becomes -alpha
+				int value = negaMaxAlphaBeta(board, depth - 1, -beta, -alpha, (colour == white) ? black : white);
+				bestValue = max(bestValue, value); // is the new value higher than the current best value
+				alpha = max(alpha, value); // alpha becomes the returned value if it is higher
+
+				if (alpha >= beta) { // if alpha is greater than beta cutoff and stop evaluating all other sub-nodes
+					numberOfCutoffs++;
 					break;
 				}
 				else {
-					numberOfNodesScanned += 1;
+					numberOfNodesScanned++;
 				}
 			}
 			return bestValue;
