@@ -141,8 +141,8 @@ public:
 		}
 
 		//e5
-		//board.SetTypeOfPiece(6, 6, Type::rook);
-		//board.SetColourOfPiece(6, 6, Colour::black);
+		board.SetTypeOfPiece(6, 6, Type::rook);
+		board.SetColourOfPiece(6, 6, Colour::black);
 
 		board.SetTypeOfPiece(6, 4, Type::pawnEnPassant);
 		board.SetColourOfPiece(6, 4, Colour::black);

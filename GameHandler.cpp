@@ -19,11 +19,6 @@ class GameHandler {
 		Board realBoard;
 		Colour currentTurn = white;
 
-		//bool humanCheck = false;
-		//bool aiCheck = false;
-		//bool humanCheckMate = false;
-		//bool aiCheckMate = false;
-
 		int movesMade = 0;
 
 		bool humanHasKing = true;
@@ -38,7 +33,7 @@ class GameHandler {
 			boardHandler.printBoard(realBoard);
 
 			//while both kings are in play, play the game
-			while (humanHasKing && aiHasKing)
+			while (humanHasKing && aiHasKing || true)
 			{
 				cout << ((currentTurn == white) ? "White" : "Black") << " Turn" << endl;
 				if (currentTurn == white)
@@ -52,8 +47,8 @@ class GameHandler {
 				}
 				else if (currentTurn == black)
 				{
-					cout << "Calculating AI move" << endl << endl;
-					blackAI.AIMove(currentTurn, realBoard, 6);  // int is depth to search. must be an even number to evaluate own moves last
+					cout << "Calculating AI move..." << endl << endl;
+					blackAI.AIMove(currentTurn, realBoard, 3);  // int is depth to search. must be an even number to evaluate own moves last
 					boardHandler.printBoard(realBoard);
 					humanHasKing = checkKing(white, realBoard);
 				}

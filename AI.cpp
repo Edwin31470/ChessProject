@@ -139,7 +139,8 @@ class AI
 			maximisingPlayer = colour;
 
 			clock_t timeOfStart = clock();
-			Move bestMove = negaMaxAlphaBetaInitial(realBoard, depth, INT_MIN, INT_MAX, colour); // maximum and minimum values possible used as initial alpha and beta
+			Move bestMove = negaMaxInitial(realBoard, depth, colour);
+			//Move bestMove = negaMaxAlphaBetaInitial(realBoard, depth, INT_MIN, INT_MAX, colour); // maximum and minimum values possible used as initial alpha and beta
 			clock_t timeOfEnd = clock();
 			
 			moveHandler.movePiece(bestMove, colour, realBoard);

@@ -49,4 +49,12 @@ class Board
 		void ClearSquare(int number, int letter) {
 			pieceBoard[number][letter].Clear();
 		}
+
+		void Equals(Board& board) {
+			for (int numberCoord = 0; numberCoord < 12; numberCoord++) {
+				for (int letterCoord = 0; letterCoord < 12; letterCoord++) {
+					pieceBoard[numberCoord][letterCoord] = board.GetSquare(numberCoord, letterCoord);
+				}
+			}
+		}
 };
